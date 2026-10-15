@@ -78,21 +78,87 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhb3BscXpqeW5yYWJqbG13YXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDUxNjUsImV4cCI6MjEwNzYyMTE2NX0.VvlqDouwOP3ini6LfdFp1fKavWLrGLsWZdFAv1XWLBE';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 구글 TTS 오디오 재생 함수
-    function playGoogleTTS(text) {
-      if (!text) return;
-      const encodedText = encodeURIComponent(text);
-      // Google Translate TTS URL
-      const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=en&client=tw-ob`;
-      const audio = new Audio(ttsUrl);
-      audio.play().catch(err => alert("음성 재생 실패: " + err.message));
-    }
+    // 특수문자(' 및 ") 안전 변환 함수
+function escapeQuotes(str) {
+  if (!str) return '';
+  return str
+    .replace(/'/g, "\\'")     // ' 문자를 \' 로 변환
+    .replace(/"/g, '&quot;');  // " 문자를 &quot; 로 변환
+}
 
-    // 3문장 연속 재생 함수
-    function playAllTTS(s1, s2, s3) {
-      const fullText = `${s1}. ${s2}. ${s3}.`;
-      playGoogleTTS(fullText);
-    }
+// 목록 불러오기 함수 수정 부분
+async function loadSentences() {
+  const { data, error } = await supabaseClient
+    .from('sentences')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  const logsDiv = document.getElementById('logs');
+  if (error) {
+    logsDiv.innerHTML = '불러오기 실패: ' + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    logsDiv.innerHTML = '<p>아직 작성된 기록이 없습니다.</p>';
+    return;
+  }
+
+  logsDiv.innerHTML = data.map(item => {
+    const date = new Date(item.created_at).toLocaleString('ko-KR');
+    
+    // 안전하게 따옴표 이스케이프 처리
+    const safeS1 = escapeQuotes(item.sentence1);
+    const safeS2 = escapeQuotes(item.sentence2);
+    const safeS3 = escapeQuotes(item.sentence3);
+
+    return `
+      <div class="log-item">
+        <div class="log-header">
+          <span class="date">${date}</span>
+          <button class="btn-tts" onclick="playAllTTS('${safeS1}', '${safeS2}', '${safeS3}')">🔊 전체 들어보기</button>
+        </div>
+        <ol>
+          <li>${item.sentence1}</li>
+          <li>${item.sentence2}</li>
+          <li>${item.sentence3}</li>
+        </ol>
+      </div>
+    `;
+  }).join('');
+}
+
+// 랜덤 복습 팝업 띄우기 함수 수정 부분
+async function showRandom() {
+  const { data, error } = await supabaseClient.from('sentences').select('*');
+  
+  if (error || !data || data.length === 0) {
+    alert('복습할 문장 기록이 없습니다. 먼저 문장을 등록해 주세요!');
+    return;
+  }
+
+  const randomItem = data[Math.floor(Math.random() * data.length)];
+  
+  // 안전하게 따옴표 이스케이프 처리
+  const safeS1 = escapeQuotes(randomItem.sentence1);
+  const safeS2 = escapeQuotes(randomItem.sentence2);
+  const safeS3 = escapeQuotes(randomItem.sentence3);
+
+  const modalBody = document.getElementById('modalBody');
+  modalBody.innerHTML = `
+    <div style="background:#f8fafc; padding:16px; border-radius:8px; margin-bottom:12px;">
+      <div style="font-size:0.8em; color:#64748b; margin-bottom:8px;">작성일: ${new Date(randomItem.created_at).toLocaleDateString('ko-KR')}</div>
+      <ol style="margin:0; padding-left:20px;">
+        <li style="margin-bottom:8px;">${randomItem.sentence1}</li>
+        <li style="margin-bottom:8px;">${randomItem.sentence2}</li>
+        <li>${randomItem.sentence3}</li>
+      </ol>
+    </div>
+    <button class="btn-tts" style="width:100%; padding:10px;" onclick="playAllTTS('${safeS1}', '${safeS2}', '${safeS3}')">🔊 복습 문장 구글 음성으로 듣기</button>
+  `;
+
+  document.getElementById('randomModal').style.display = 'flex';
+}
 
     // 저장 함수
     async function saveSentences() {
@@ -209,6 +275,11 @@ async function showRandom() {
 
     // 페이지 진입 시 로드
     loadSentences();
+
+    // 음성 리스트 미리 로드
+    if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+    }
   </script>
 </body>
 </html>
