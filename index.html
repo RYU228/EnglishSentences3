@@ -26,12 +26,12 @@
             <span class="text-xl">🎧</span>
             <h1 class="font-bold text-base text-slate-800">영어 귀뚫기 7단계</h1>
         </div>
-        <div class="flex items-center space-x-2">
-            <button onclick="openSupabaseModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
-                ⚙️ Supabase 설정
+        <div class="flex items-center space-x-1 sm:space-x-2">
+            <button onclick="openConfigModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                ⚙️ 설정
             </button>
-            <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
-                ➕ 문장 추가
+            <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                ➕ 추가
             </button>
         </div>
     </header>
@@ -42,9 +42,14 @@
         <!-- 상단 정보 및 진행 상황 -->
         <div class="flex items-center justify-between mb-3">
             <div class="text-xs font-medium text-slate-500" id="sentence-counter">문장 1 / 1</div>
-            <div class="flex items-center space-x-1">
-                <span id="db-status-badge" class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
-                <span class="text-xs text-slate-400" id="db-status-text">로컬 모드</span>
+            <div class="flex items-center space-x-2">
+                <span id="tts-status-tag" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                    기본 TTS
+                </span>
+                <div class="flex items-center space-x-1">
+                    <span id="db-status-badge" class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span class="text-xs text-slate-400" id="db-status-text">로컬 DB</span>
+                </div>
             </div>
         </div>
 
@@ -57,9 +62,9 @@
                     <span id="step-badge" class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">
                         Step 1
                     </span>
-                    <div class="space-x-1">
-                        <button onclick="speakCurrentSentence()" class="p-2 rounded-full bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 transition text-slate-600" title="음성 듣기">
-                            🔊
+                    <div class="flex items-center space-x-1">
+                        <button id="tts-play-btn" onclick="speakCurrentSentence()" class="p-2.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition flex items-center justify-center" title="음성 듣기">
+                            <span id="tts-btn-icon" class="text-base">🔊</span>
                         </button>
                     </div>
                 </div>
@@ -85,7 +90,7 @@
             </div>
         </div>
 
-        <!-- 하단 네비게이션 바 (모바일 최적화) -->
+        <!-- 하단 네비게이션 바 -->
         <nav class="mt-4 grid grid-cols-5 gap-2">
             <button onclick="changeStep(-1)" class="bg-white border border-slate-200 hover:bg-slate-50 py-3 rounded-xl font-semibold text-xs text-slate-700 flex flex-col items-center justify-center shadow-sm">
                 <span>◀</span>
@@ -101,29 +106,56 @@
         </nav>
     </main>
 
-    <!-- Supabase 설정 모달 -->
-    <div id="supabase-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl animate-in fade-in duration-200">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-base text-slate-800">Supabase 연결 설정</h3>
-                <button onclick="closeSupabaseModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+    <!-- 설정 통합 모달 (Supabase & Google Cloud TTS) -->
+    <div id="config-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="font-bold text-base text-slate-800">앱 서비스 연동 설정</h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
             </div>
-            <p class="text-xs text-slate-500 mb-4">Supabase 프로젝트의 URL과 Anon Key를 입력하여 클라우드 문장 데이터베이스와 연동하세요.</p>
-            
-            <div class="space-y-3 mb-5">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Project URL</label>
-                    <input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Anon Public Key</label>
-                    <input type="password" id="sb-key" placeholder="eyJhbGciOi..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+
+            <!-- Google TTS 섹션 -->
+            <div class="mb-6">
+                <h4 class="font-semibold text-xs text-indigo-700 mb-2 flex items-center gap-1">
+                    🗣️ Google Cloud TTS 설정
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Google Cloud API Key</label>
+                        <input type="password" id="g-api-key" placeholder="AIzaSy..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">음성 모델 선택</label>
+                        <select id="g-voice-name" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 bg-white">
+                            <option value="en-US-Neural2-F">en-US-Neural2-F (여성 고품질)</option>
+                            <option value="en-US-Neural2-D">en-US-Neural2-D (남성 고품질)</option>
+                            <option value="en-US-Journey-F">en-US-Journey-F (대화체 여성)</option>
+                            <option value="en-US-Journey-D">en-US-Journey-D (대화체 남성)</option>
+                            <option value="en-US-Wavenet-F">en-US-Wavenet-F (표준 여성)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="saveSupabaseConfig()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs">연동 및 저장</button>
-                <button onclick="clearSupabaseConfig()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 py-2.5 rounded-xl font-semibold text-xs">로컬 모드로 전환</button>
+            <!-- Supabase 섹션 -->
+            <div class="mb-6 border-t pt-4">
+                <h4 class="font-semibold text-xs text-emerald-700 mb-2 flex items-center gap-1">
+                    🗄️ Supabase DB 설정
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Project URL</label>
+                        <input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Anon Public Key</label>
+                        <input type="password" id="sb-key" placeholder="eyJhbGciOi..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2 pt-2 border-t">
+                <button onclick="saveAllConfigs()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs">설정 저장 및 적용</button>
             </div>
         </div>
     </div>
@@ -159,10 +191,9 @@
     </div>
 
     <script>
-        // 7단계 정의
         const steps = [
             { step: 1, title: "Step 1: 의미단위 끊어듣기", desc: "원어민의 호흡 단위(/)를 느끼며 의미 단위로 귀를 뚫는 단계입니다." },
-            { step: 2, title: "Step 2:  섀도잉 (따라 말하기)", desc: "소리를 듣고 곧바로 따라 하며 입과 혀를 길들입니다." },
+            { step: 2, title: "Step 2: 섀도잉 (따라 말하기)", desc: "소리를 듣고 곧바로 따라 하며 입과 혀를 길들입니다." },
             { step: 3, title: "Step 3: 오디오만 듣고 의미 파악", desc: "화면을 보지 않고 귀로만 들으며 내용이 머릿속에 그려지는지 확인합니다." },
             { step: 4, title: "Step 4: 속삭이며 섀도잉 (Soft Shadowing)", desc: "작은 목소리로 리듬감과 연음을 살려 부드럽게 따라 합니다." },
             { step: 5, title: "Step 5: 정크(덩어리) 단위 암기", desc: "단어 단위가 아닌 자주 쓰이는 청크 단위로 구조를 체화합니다." },
@@ -172,8 +203,8 @@
 
         let currentStepIdx = 0;
         let currentSentenceIdx = 0;
+        let currentAudioObject = null; // 오디오 중복 재생 방지
         
-        // 기본 샘플 데이터 (IM3 오픽 스크립트)
         let sentences = [
             {
                 en: "Well, to be honest, I usually spend my weekends at a local park near my apartment because it’s a great place to unwind after a busy work week.",
@@ -184,14 +215,24 @@
 
         let supabaseClient = null;
 
-        // 초기화
         window.addEventListener('DOMContentLoaded', () => {
-            loadSupabaseConfig();
+            loadAllConfigs();
             renderCurrentView();
         });
 
-        // Supabase 설정 관리
-        function loadSupabaseConfig() {
+        // 설정 불러오기
+        function loadAllConfigs() {
+            // Google TTS
+            const gKey = localStorage.getItem('g_api_key');
+            const gVoice = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
+            if (gKey) {
+                document.getElementById('g-api-key').value = gKey;
+                document.getElementById('g-voice-name').value = gVoice;
+                document.getElementById('tts-status-tag').className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700";
+                document.getElementById('tts-status-tag').innerText = "Google TTS";
+            }
+
+            // Supabase
             const url = localStorage.getItem('sb_url');
             const key = localStorage.getItem('sb_key');
             if (url && key) {
@@ -201,52 +242,139 @@
             }
         }
 
+        // 통합 설정 저장
+        function saveAllConfigs() {
+            // Google Cloud TTS Key 저장
+            const gKey = document.getElementById('g-api-key').value.trim();
+            const gVoice = document.getElementById('g-voice-name').value;
+            if (gKey) {
+                localStorage.setItem('g_api_key', gKey);
+                localStorage.setItem('g_voice_name', gVoice);
+                document.getElementById('tts-status-tag').className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700";
+                document.getElementById('tts-status-tag').innerText = "Google TTS";
+            } else {
+                localStorage.removeItem('g_api_key');
+                localStorage.removeItem('g_voice_name');
+                document.getElementById('tts-status-tag').className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
+                document.getElementById('tts-status-tag').innerText = "기본 TTS";
+            }
+
+            // Supabase 저장
+            const url = document.getElementById('sb-url').value.trim();
+            const key = document.getElementById('sb-key').value.trim();
+            if (url && key) {
+                localStorage.setItem('sb_url', url);
+                localStorage.setItem('sb_key', key);
+                initSupabase(url, key);
+            } else {
+                localStorage.removeItem('sb_url');
+                localStorage.removeItem('sb_key');
+                supabaseClient = null;
+                document.getElementById('db-status-badge').className = "inline-block w-2 h-2 rounded-full bg-amber-400";
+                document.getElementById('db-status-text').innerText = "로컬 DB";
+            }
+
+            closeConfigModal();
+            alert("설정이 저장되었습니다.");
+        }
+
         function initSupabase(url, key) {
             try {
                 supabaseClient = supabase.createClient(url, key);
                 document.getElementById('db-status-badge').className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-                document.getElementById('db-status-text').innerText = "Supabase 연동됨";
+                document.getElementById('db-status-text').innerText = "Supabase 연동";
                 fetchSupabaseData();
             } catch (e) {
                 console.error(e);
-                alert("Supabase 연결 실패: URL과 Key를 확인해주세요.");
             }
         }
 
         async function fetchSupabaseData() {
             if (!supabaseClient) return;
             const { data, error } = await supabaseClient.from('english_sentences').select('*').order('created_at', { ascending: false });
-            if (error) {
-                console.error(error);
-            } else if (data && data.length > 0) {
+            if (!error && data && data.length > 0) {
                 sentences = data;
                 currentSentenceIdx = 0;
                 renderCurrentView();
             }
         }
 
-        function saveSupabaseConfig() {
-            const url = document.getElementById('sb-url').value.trim();
-            const key = document.getElementById('sb-key').value.trim();
-            if (!url || !key) {
-                alert("URL과 Key를 모두 입력해주세요.");
-                return;
-            }
-            localStorage.setItem('sb_url', url);
-            localStorage.setItem('sb_key', key);
-            initSupabase(url, key);
-            closeSupabaseModal();
-            alert("Supabase 연동이 완료되었습니다!");
-        }
+        // 핵심: Google Cloud API 기반 음성 재생 함수 (개선 버전)
+        async function speakCurrentSentence() {
+            const s = sentences[currentSentenceIdx];
+            if (!s) return;
 
-        function clearSupabaseConfig() {
-            localStorage.removeItem('sb_url');
-            localStorage.removeItem('sb_key');
-            supabaseClient = null;
-            document.getElementById('db-status-badge').className = "inline-block w-2 h-2 rounded-full bg-amber-400";
-            document.getElementById('db-status-text').innerText = "로컬 모드";
-            closeSupabaseModal();
-            alert("로컬 모드로 전환되었습니다.");
+            const apiKey = localStorage.getItem('g_api_key');
+            const voiceName = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
+
+            // 재생 텍스트 준비 (Step 1일 때는 끊어 읽기 기호 / 제거)
+            let textToSpeak = currentStepIdx === 0 && s.en_chunked ? s.en_chunked.replaceAll('/', '') : s.en;
+
+            // 이미 재생 중인 음성이 있으면 정지
+            if (currentAudioObject) {
+                currentAudioObject.pause();
+                currentAudioObject = null;
+            }
+
+            const btnIcon = document.getElementById('tts-btn-icon');
+            btnIcon.innerText = "⏳"; // 로딩 중 표시
+
+            // Google Cloud API Key가 설정되어 있는 경우
+            if (apiKey) {
+                const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
+                const speedRate = currentStepIdx === 5 ? 1.25 : 1.0; // 6단계일 때는 1.25배속
+
+                const requestBody = {
+                    input: { text: textToSpeak },
+                    voice: {
+                        languageCode: 'en-US',
+                        name: voiceName
+                    },
+                    audioConfig: {
+                        audioEncoding: 'MP3',
+                        speakingRate: speedRate
+                    }
+                };
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.audioContent) {
+                        const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
+                        currentAudioObject = audio;
+                        audio.play();
+                        audio.onended = () => { btnIcon.innerText = "🔊"; };
+                        btnIcon.innerText = "🔊";
+                    } else if (data.error) {
+                        alert("Google TTS 오류: " + data.error.message);
+                        btnIcon.innerText = "🔊";
+                    }
+                } catch (error) {
+                    console.error("GCP TTS Fetch Error:", error);
+                    alert("Google Cloud API 연동 실패. API 키를 확인해 주세요.");
+                    btnIcon.innerText = "🔊";
+                }
+            } else {
+                // API Key가 없을 경우 브라우저 기본 Web Speech API로 폴백(Fallback)
+                if (!('speechSynthesis' in window)) {
+                    alert("이 브라우저는 음성 재생을 지원하지 않습니다.");
+                    btnIcon.innerText = "🔊";
+                    return;
+                }
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'en-US';
+                utterance.rate = currentStepIdx === 5 ? 1.2 : 0.9;
+                utterance.onend = () => { btnIcon.innerText = "🔊"; };
+                window.speechSynthesis.speak(utterance);
+                btnIcon.innerText = "🔊";
+            }
         }
 
         // 화면 렌더링
@@ -255,27 +383,20 @@
             const s = sentences[currentSentenceIdx];
             const st = steps[currentStepIdx];
 
-            // 상단 카운터
             document.getElementById('sentence-counter').innerText = `문장 ${currentSentenceIdx + 1} / ${sentences.length}`;
-
-            // 단계 정보
             document.getElementById('step-badge').innerText = `Step ${st.step}`;
             document.getElementById('step-title').innerText = st.title;
             document.getElementById('step-desc').innerText = st.desc;
 
-            // 텍스트 내용 분기 (Step 1일 때는 끊어읽기 버전 표시)
             let displayText = s.en;
             if (currentStepIdx === 0 && s.en_chunked) {
                 displayText = s.en_chunked;
             }
             document.getElementById('content-display').innerText = displayText;
             document.getElementById('ko-display').innerText = s.ko;
-
-            // 버튼 텍스트 변경
             document.getElementById('next-btn-text').innerText = currentStepIdx < 6 ? `Step ${st.step + 1}로 ➔` : "완료 (다음 문장)";
         }
 
-        // 단계 변경
         function changeStep(direction) {
             currentStepIdx += direction;
             if (currentStepIdx > 6) {
@@ -283,42 +404,22 @@
                 nextSentence();
                 return;
             }
-            if (currentStepIdx < 0) {
-                currentStepIdx = 6;
-            }
+            if (currentStepIdx < 0) currentStepIdx = 6;
             renderCurrentView();
         }
 
-        // 다음 문장
         function nextSentence() {
             currentSentenceIdx = (currentSentenceIdx + 1) % sentences.length;
             currentStepIdx = 0;
             renderCurrentView();
         }
 
-        // TTS 음성 재생
-        function speakCurrentSentence() {
-            if (!('speechSynthesis' in window)) {
-                alert("이 브라우저는 음성 재생을 지원하지 않습니다.");
-                return;
-            }
-            window.speechSynthesis.cancel();
-            const s = sentences[currentSentenceIdx];
-            const textToSpeak = currentStepIdx === 0 && s.en_chunked ? s.en_chunked.replaceAll('/', '') : s.en;
-            const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            utterance.lang = 'en-US';
-            utterance.rate = currentStepIdx === 5 ? 1.2 : 0.9; // 6단계에서는 조금 빠르게
-            window.speechSynthesis.speak(utterance);
-        }
-
-        // 모달 제어
-        function openSupabaseModal() { document.getElementById('supabase-modal').classList.remove('hidden'); document.getElementById('supabase-modal').classList.add('flex'); }
-        function closeSupabaseModal() { document.getElementById('supabase-modal').classList.remove('flex'); document.getElementById('supabase-modal').classList.add('hidden'); }
+        function openConfigModal() { document.getElementById('config-modal').classList.remove('hidden'); document.getElementById('config-modal').classList.add('flex'); }
+        function closeConfigModal() { document.getElementById('config-modal').classList.remove('flex'); document.getElementById('config-modal').classList.add('hidden'); }
         
         function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('add-modal').classList.add('flex'); }
         function closeAddModal() { document.getElementById('add-modal').classList.remove('flex'); document.getElementById('add-modal').classList.add('hidden'); }
 
-        // 문장 추가
         async function addNewSentence() {
             const en = document.getElementById('new-en').value.trim();
             const en_chunked = document.getElementById('new-chunked').value.trim();
@@ -333,11 +434,9 @@
 
             if (supabaseClient) {
                 const { data, error } = await supabaseClient.from('english_sentences').insert([newObj]).select();
-                if (error) {
-                    alert("Supabase 저장 중 오류 발생: " + error.message);
-                    return;
+                if (!error && data) {
+                    sentences.unshift(data[0]);
                 }
-                if (data) sentences.unshift(data[0]);
             } else {
                 sentences.unshift(newObj);
             }
@@ -347,7 +446,6 @@
             renderCurrentView();
             closeAddModal();
 
-            // 입력폼 초기화
             document.getElementById('new-en').value = '';
             document.getElementById('new-chunked').value = '';
             document.getElementById('new-ko').value = '';
