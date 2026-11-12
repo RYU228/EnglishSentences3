@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>길잡이영어 7단계 학습법</title>
+    <title>영어 귀뚫기 학습 앱</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS SDK -->
@@ -24,7 +24,7 @@
     <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-10">
         <div class="flex items-center space-x-2">
             <span class="text-xl">🎧</span>
-            <h1 class="font-bold text-base text-slate-800">영어 귀뚫기 7단계</h1>
+            <h1 class="font-bold text-base text-slate-800">영어 귀뚫기 훈련</h1>
         </div>
         <div class="flex items-center space-x-1 sm:space-x-2">
             <button onclick="openConfigModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
@@ -53,16 +53,23 @@
             </div>
         </div>
 
-        <!-- 카드 영역 (단계별 표시) -->
+        <!-- 카드 영역 -->
         <div class="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between overflow-y-auto relative">
             
-            <!-- 단계 표시 배지 -->
+            <!-- 단계 표시 및 옵션 컨트롤 -->
             <div>
                 <div class="flex items-center justify-between mb-4">
                     <span id="step-badge" class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">
                         Step 1
                     </span>
-                    <div class="flex items-center space-x-1">
+                    
+                    <div class="flex items-center space-x-2">
+                        <!-- 속도 토글 버튼 (0.75x / 1.0x) -->
+                        <button id="speed-btn" onclick="toggleSpeed()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition flex items-center gap-1">
+                            🚀 <span id="speed-text">1.0x</span>
+                        </button>
+
+                        <!-- 재생 버튼 -->
                         <button id="tts-play-btn" onclick="speakCurrentSentence()" class="p-2.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition flex items-center justify-center" title="음성 듣기">
                             <span id="tts-btn-icon" class="text-base">🔊</span>
                         </button>
@@ -70,8 +77,8 @@
                 </div>
 
                 <!-- 단계별 안내 제목 -->
-                <h2 id="step-title" class="text-sm font-bold text-indigo-900 mb-2">단계 안내</h2>
-                <p id="step-desc" class="text-xs text-slate-500 mb-6 leading-relaxed">단계별 설명이 여기에 표시됩니다.</p>
+                <h2 id="step-title" class="text-sm font-bold text-indigo-900 mb-1">단계 안내</h2>
+                <p id="step-desc" class="text-xs text-slate-500 mb-4 leading-relaxed">단계별 설명이 여기에 표시됩니다.</p>
             </div>
 
             <!-- 핵심 문장 컨텐츠 -->
@@ -106,7 +113,7 @@
         </nav>
     </main>
 
-    <!-- 설정 통합 모달 (Supabase & Google Cloud TTS) -->
+    <!-- 설정 모달 -->
     <div id="config-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -114,7 +121,6 @@
                 <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
             </div>
 
-            <!-- Google TTS 섹션 -->
             <div class="mb-6">
                 <h4 class="font-semibold text-xs text-indigo-700 mb-2 flex items-center gap-1">
                     🗣️ Google Cloud TTS 설정
@@ -131,13 +137,11 @@
                             <option value="en-US-Neural2-D">en-US-Neural2-D (남성 고품질)</option>
                             <option value="en-US-Journey-F">en-US-Journey-F (대화체 여성)</option>
                             <option value="en-US-Journey-D">en-US-Journey-D (대화체 남성)</option>
-                            <option value="en-US-Wavenet-F">en-US-Wavenet-F (표준 여성)</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Supabase 섹션 -->
             <div class="mb-6 border-t pt-4">
                 <h4 class="font-semibold text-xs text-emerald-700 mb-2 flex items-center gap-1">
                     🗄️ Supabase DB 설정
@@ -191,19 +195,17 @@
     </div>
 
     <script>
+        // 개편된 3단계 로직 정의
         const steps = [
-            { step: 1, title: "Step 1: 의미단위 끊어듣기", desc: "원어민의 호흡 단위(/)를 느끼며 의미 단위로 귀를 뚫는 단계입니다." },
-            { step: 2, title: "Step 2: 섀도잉 (따라 말하기)", desc: "소리를 듣고 곧바로 따라 하며 입과 혀를 길들입니다." },
-            { step: 3, title: "Step 3: 오디오만 듣고 의미 파악", desc: "화면을 보지 않고 귀로만 들으며 내용이 머릿속에 그려지는지 확인합니다." },
-            { step: 4, title: "Step 4: 속삭이며 섀도잉 (Soft Shadowing)", desc: "작은 목소리로 리듬감과 연음을 살려 부드럽게 따라 합니다." },
-            { step: 5, title: "Step 5: 정크(덩어리) 단위 암기", desc: "단어 단위가 아닌 자주 쓰이는 청크 단위로 구조를 체화합니다." },
-            { step: 6, title: "Step 6: 속도 높여 듣기/말하기", desc: "빠른 속도에서도 영어 어순 그대로 인지하는 훈련을 합니다." },
-            { step: 7, title: "Step 7: 실전 스피킹 적용", desc: "내 목소리로 완벽하게 녹화/발화하며 완전히 내 것으로 만듭니다." }
+            { step: 1, title: "Step 1: 전체 문장 연속 듣기", desc: "원문 전체를 부드럽게 들으며 맥락을 파악하는 단계입니다." },
+            { step: 2, title: "Step 2: 의미 단위 끊어 읽기", desc: "청크 단위(/)로 0.5초간 쉬어가며 어순과 억양을 체화합니다." },
+            { step: 3, title: "Step 3: 섀도잉 및 무한 반복", desc: "음성이 자동 반복 재생됩니다. 소리를 듣자마자 입으로 따라 말해보세요." }
         ];
 
         let currentStepIdx = 0;
         let currentSentenceIdx = 0;
-        let currentAudioObject = null; // 오디오 중복 재생 방지
+        let currentAudioObject = null;
+        let selectedSpeed = 1.0; // 기본 배속 (1.0 or 0.75)
         
         let sentences = [
             {
@@ -220,9 +222,7 @@
             renderCurrentView();
         });
 
-        // 설정 불러오기
         function loadAllConfigs() {
-            // Google TTS
             const gKey = localStorage.getItem('g_api_key');
             const gVoice = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
             if (gKey) {
@@ -232,7 +232,6 @@
                 document.getElementById('tts-status-tag').innerText = "Google TTS";
             }
 
-            // Supabase
             const url = localStorage.getItem('sb_url');
             const key = localStorage.getItem('sb_key');
             if (url && key) {
@@ -242,9 +241,7 @@
             }
         }
 
-        // 통합 설정 저장
         function saveAllConfigs() {
-            // Google Cloud TTS Key 저장
             const gKey = document.getElementById('g-api-key').value.trim();
             const gVoice = document.getElementById('g-voice-name').value;
             if (gKey) {
@@ -259,7 +256,6 @@
                 document.getElementById('tts-status-tag').innerText = "기본 TTS";
             }
 
-            // Supabase 저장
             const url = document.getElementById('sb-url').value.trim();
             const key = document.getElementById('sb-key').value.trim();
             if (url && key) {
@@ -299,7 +295,16 @@
             }
         }
 
-        // 핵심: Google Cloud API 기반 음성 재생 함수 (개선 버전)
+        // 속도 토글 기능 (1.0x <-> 0.75x)
+        function toggleSpeed() {
+            selectedSpeed = selectedSpeed === 1.0 ? 0.75 : 1.0;
+            document.getElementById('speed-text').innerText = `${selectedSpeed}x`;
+            if (currentAudioObject) {
+                currentAudioObject.playbackRate = selectedSpeed;
+            }
+        }
+
+        // 핵심: 음성 재생 함수 (SSML 끊어 읽기 + 속도 적용)
         async function speakCurrentSentence() {
             const s = sentences[currentSentenceIdx];
             if (!s) return;
@@ -307,32 +312,42 @@
             const apiKey = localStorage.getItem('g_api_key');
             const voiceName = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
 
-            // 재생 텍스트 준비 (Step 1일 때는 끊어 읽기 기호 / 제거)
-            let textToSpeak = currentStepIdx === 0 && s.en_chunked ? s.en_chunked.replaceAll('/', '') : s.en;
-
-            // 이미 재생 중인 음성이 있으면 정지
+            // 이전 오디오 재생 정지
             if (currentAudioObject) {
                 currentAudioObject.pause();
                 currentAudioObject = null;
             }
 
             const btnIcon = document.getElementById('tts-btn-icon');
-            btnIcon.innerText = "⏳"; // 로딩 중 표시
+            btnIcon.innerText = "⏳";
 
-            // Google Cloud API Key가 설정되어 있는 경우
+            // Step 2 (끊어 읽기) 단계일 때만 / 기호를 SSML break로 변환
+            const isChunkMode = currentStepIdx === 1;
+
             if (apiKey) {
                 const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
-                const speedRate = currentStepIdx === 5 ? 1.25 : 1.0; // 6단계일 때는 1.25배속
+                
+                let requestInput = {};
+
+                if (isChunkMode && s.en_chunked) {
+                    // / 기호를 SSML 500ms 쉼 태그로 전환
+                    const cleanChunked = s.en_chunked.replaceAll('/', '<break time="500ms"/>');
+                    const ssmlText = `<speak>${cleanChunked}</speak>`;
+                    requestInput = { ssml: ssmlText };
+                } else {
+                    const rawText = s.en_chunked ? s.en_chunked.replaceAll('/', '') : s.en;
+                    requestInput = { text: rawText };
+                }
 
                 const requestBody = {
-                    input: { text: textToSpeak },
+                    input: requestInput,
                     voice: {
                         languageCode: 'en-US',
                         name: voiceName
                     },
                     audioConfig: {
                         audioEncoding: 'MP3',
-                        speakingRate: speedRate
+                        speakingRate: selectedSpeed
                     }
                 };
 
@@ -347,9 +362,16 @@
 
                     if (data.audioContent) {
                         const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
+                        audio.playbackRate = selectedSpeed;
                         currentAudioObject = audio;
+
+                        // Step 3 (섀도잉) 단계일 경우 무한 자동 반복 재생
+                        if (currentStepIdx === 2) {
+                            audio.loop = true;
+                        }
+
                         audio.play();
-                        audio.onended = () => { btnIcon.innerText = "🔊"; };
+                        audio.onended = () => { if (!audio.loop) btnIcon.innerText = "🔊"; };
                         btnIcon.innerText = "🔊";
                     } else if (data.error) {
                         alert("Google TTS 오류: " + data.error.message);
@@ -357,20 +379,21 @@
                     }
                 } catch (error) {
                     console.error("GCP TTS Fetch Error:", error);
-                    alert("Google Cloud API 연동 실패. API 키를 확인해 주세요.");
+                    alert("Google Cloud API 연동 실패.");
                     btnIcon.innerText = "🔊";
                 }
             } else {
-                // API Key가 없을 경우 브라우저 기본 Web Speech API로 폴백(Fallback)
+                // 웹 브라우저 기본 Web Speech API (API Key 없을 때 폴백)
                 if (!('speechSynthesis' in window)) {
                     alert("이 브라우저는 음성 재생을 지원하지 않습니다.");
                     btnIcon.innerText = "🔊";
                     return;
                 }
                 window.speechSynthesis.cancel();
+                let textToSpeak = isChunkMode && s.en_chunked ? s.en_chunked.replaceAll('/', ', ') : s.en;
                 const utterance = new SpeechSynthesisUtterance(textToSpeak);
                 utterance.lang = 'en-US';
-                utterance.rate = currentStepIdx === 5 ? 1.2 : 0.9;
+                utterance.rate = selectedSpeed;
                 utterance.onend = () => { btnIcon.innerText = "🔊"; };
                 window.speechSynthesis.speak(utterance);
                 btnIcon.innerText = "🔊";
@@ -380,6 +403,14 @@
         // 화면 렌더링
         function renderCurrentView() {
             if (sentences.length === 0) return;
+
+            // 단계 변경 시 기존 재생 중인 음성 정지
+            if (currentAudioObject) {
+                currentAudioObject.pause();
+                currentAudioObject = null;
+                document.getElementById('tts-btn-icon').innerText = "🔊";
+            }
+
             const s = sentences[currentSentenceIdx];
             const st = steps[currentStepIdx];
 
@@ -388,23 +419,24 @@
             document.getElementById('step-title').innerText = st.title;
             document.getElementById('step-desc').innerText = st.desc;
 
+            // 텍스트 내용 분기 (Step 2일 때만 끊어 읽기 표기 표시)
             let displayText = s.en;
-            if (currentStepIdx === 0 && s.en_chunked) {
+            if (currentStepIdx === 1 && s.en_chunked) {
                 displayText = s.en_chunked;
             }
             document.getElementById('content-display').innerText = displayText;
             document.getElementById('ko-display').innerText = s.ko;
-            document.getElementById('next-btn-text').innerText = currentStepIdx < 6 ? `Step ${st.step + 1}로 ➔` : "완료 (다음 문장)";
+            document.getElementById('next-btn-text').innerText = currentStepIdx < 2 ? `Step ${st.step + 1}로 ➔` : "완료 (다음 문장)";
         }
 
         function changeStep(direction) {
             currentStepIdx += direction;
-            if (currentStepIdx > 6) {
+            if (currentStepIdx > 2) {
                 currentStepIdx = 0;
                 nextSentence();
                 return;
             }
-            if (currentStepIdx < 0) currentStepIdx = 6;
+            if (currentStepIdx < 0) currentStepIdx = 2;
             renderCurrentView();
         }
 
