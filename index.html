@@ -26,9 +26,12 @@
     <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-10 shrink-0">
         <div class="flex items-center space-x-2">
             <span class="text-xl">🎧</span>
-            <h1 class="font-bold text-base text-slate-800">영어 귀뚫기 훈련</h1>
+            <h1 class="font-bold text-base text-slate-800" id="current-header-title">영어 귀뚫기 훈련</h1>
         </div>
         <div class="flex items-center space-x-1 sm:space-x-2">
+            <button onclick="openSelectModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                📚 문제선택
+            </button>
             <button onclick="openStatsModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
                 📊 통계
             </button>
@@ -46,7 +49,7 @@
         
         <!-- 상단 정보 및 진행 상황 -->
         <div class="flex items-center justify-between mb-2 shrink-0">
-            <div class="text-xs font-medium text-slate-500" id="sentence-counter">문장 1 / 1</div>
+            <div class="text-xs font-medium text-slate-500" id="sentence-counter">문제 1 / 1</div>
             <div class="flex items-center space-x-2">
                 <span id="tts-status-tag" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
                     기본 TTS
@@ -58,7 +61,7 @@
             </div>
         </div>
 
-        <!-- 카드 영역 (운전 중 가독성을 위해 폰트 극대화) -->
+        <!-- 카드 영역 -->
         <div class="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between overflow-y-auto relative mb-2">
             
             <!-- 단계 표시 및 배속/영작 버튼 -->
@@ -69,33 +72,27 @@
                     </span>
                     
                     <div class="flex items-center space-x-2">
-                        <!-- 영작 모드 토글 -->
                         <button onclick="toggleWritingMode()" id="writing-mode-btn" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
                             ✏️ 영작모드: <span id="writing-status">OFF</span>
                         </button>
-                        <!-- 배속 토글 버튼 (1.0x / 0.75x) -->
                         <button id="speed-btn" onclick="toggleSpeed()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition flex items-center gap-1">
                             🚀 <span id="speed-text">1.0x</span>
                         </button>
-                        <!-- 재생 버튼 -->
-                        <button id="tts-play-btn" onclick="speakCurrentSentence()" class="p-2.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition flex items-center justify-center" title="음성 듣기">
+                        <button id="tts-play-btn" onclick="speakCurrentContent()" class="p-2.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition flex items-center justify-center" title="음성 듣기">
                             <span id="tts-btn-icon" class="text-base">🔊</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- 단계별 안내 제목 -->
                 <h2 id="step-title" class="text-xs font-bold text-indigo-900 mb-1">단계 안내</h2>
                 <p id="step-desc" class="text-[11px] text-slate-500 mb-3 leading-relaxed">단계별 설명이 여기에 표시됩니다.</p>
             </div>
 
-            <!-- 핵심 문장 컨텐츠 (글자 크기 우선 최우대) -->
+            <!-- 핵심 문장 컨텐츠 (대형 폰트 및 구절별 슬라이드) -->
             <div class="my-auto py-2 border-y border-slate-100 flex flex-col items-center justify-center">
-                <!-- 일반/끊어읽기 뷰 -->
                 <div id="content-display" class="text-2xl sm:text-3xl font-bold text-slate-900 leading-snug text-center tracking-tight">
                     문장을 불러오는 중...
                 </div>
-                <!-- 영작 모드 뷰 (처음에 한글만 크게 표시) -->
                 <div id="writing-display" class="hidden text-center w-full">
                     <div class="text-[11px] font-semibold text-indigo-600 mb-1">🧠 한글 보고 영작하기</div>
                     <div id="writing-ko-prompt" class="text-xl sm:text-2xl font-bold text-slate-800 mb-3">한국어 해석</div>
@@ -108,21 +105,18 @@
                 </div>
             </div>
 
-            <!-- 하단부 추가 기능 영역 (핵심 표현 및 변형 패턴) -->
+            <!-- 하단부 추가 기능 영역 -->
             <div class="space-y-2 mt-2 shrink-0">
-                <!-- 핵심 표현 칩 영역 -->
                 <div id="expressions-container" class="hidden flex flex-wrap gap-1 items-center">
                     <span class="text-[10px] font-bold text-slate-400 mr-1">🔑 핵심표현:</span>
                     <div id="expression-chips" class="flex flex-wrap gap-1"></div>
                 </div>
 
-                <!-- 문장 변형 패턴 영역 -->
                 <div id="patterns-container" class="hidden bg-slate-50 p-2 rounded-xl border border-slate-100">
                     <div class="text-[10px] font-bold text-indigo-600 mb-1">🔄 변형 패턴 연습</div>
                     <div id="pattern-list" class="space-y-1"></div>
                 </div>
 
-                <!-- 한국어 해석 박스 -->
                 <div id="ko-box" class="bg-slate-50 p-2.5 rounded-xl">
                     <div class="text-[10px] font-semibold text-slate-400 mb-0.5">💡 전체 한국어 해석</div>
                     <div id="ko-display" class="text-xs text-slate-700 leading-normal">
@@ -143,29 +137,36 @@
             </button>
             <button onclick="nextSentence()" class="bg-white border border-slate-200 hover:bg-slate-50 py-3 rounded-xl font-semibold text-xs text-slate-700 flex flex-col items-center justify-center shadow-sm">
                 <span>⏭️</span>
-                <span class="text-[10px] text-slate-400 mt-0.5">다음문장</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">다음문제</span>
             </button>
         </nav>
     </main>
 
+    <!-- 문제 선택 모달 -->
+    <div id="select-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3 shrink-0">
+                <h3 class="font-bold text-base text-slate-800">📚 학습할 문제 선택</h3>
+                <button onclick="closeSelectModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <div id="problem-list-container" class="flex-1 overflow-y-auto space-y-2 mb-4">
+                <!-- 동적 생성 -->
+            </div>
+            <button onclick="closeSelectModal()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs shrink-0">닫기</button>
+        </div>
+    </div>
+
     <!-- 통계 및 복습 모달 -->
     <div id="stats-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="font-bold text-base text-slate-800">📊 학습 통계 및 복습</h3>
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3 shrink-0">
+                <h3 class="font-bold text-base text-slate-800">📊 문제별 학습 통계</h3>
                 <button onclick="closeStatsModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
             </div>
-            <div class="space-y-3 mb-4">
-                <div class="bg-indigo-50 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-xs font-semibold text-indigo-900">총 학습 완료 횟수</span>
-                    <span id="stat-completed-count" class="text-base font-bold text-indigo-600">0회</span>
-                </div>
-                <div class="bg-slate-50 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-xs font-semibold text-slate-700">등록된 총 학습 문장</span>
-                    <span id="stat-total-sentences" class="text-base font-bold text-slate-800">0개</span>
-                </div>
+            <div id="stats-list-container" class="flex-1 overflow-y-auto space-y-2 mb-4">
+                <!-- 동적 생성 -->
             </div>
-            <button onclick="closeStatsModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs">확인</button>
+            <button onclick="closeStatsModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs shrink-0">확인</button>
         </div>
     </div>
 
@@ -201,16 +202,20 @@
     <div id="add-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-base text-slate-800">새 학습 문장 추가</h3>
+                <h3 class="font-bold text-base text-slate-800">새로운 문제 등록</h3>
                 <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
             </div>
             <div class="space-y-3 mb-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">문제 제목 (예: 주말 공원 산책)</label>
+                    <input type="text" id="new-title" placeholder="주말 루틴 이야기" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">영어 원문 (en)</label>
                     <textarea id="new-en" rows="2" placeholder="Well, to be honest..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">끊어 읽기 버전 (/ 구분)</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">끊어 읽기 버전 (/ 로 구분하여 입력)</label>
                     <textarea id="new-chunked" rows="2" placeholder="Well, to be honest, / I usually spend..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs"></textarea>
                 </div>
                 <div>
@@ -219,7 +224,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">핵심 표현 (쉼표로 구분)</label>
-                    <input type="text" id="new-expr" placeholder="to be honest, unwind, after a busy work week" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                    <input type="text" id="new-expr" placeholder="to be honest, unwind" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
                 </div>
             </div>
             <button onclick="addNewSentence()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs">저장하기</button>
@@ -227,30 +232,38 @@
     </div>
 
     <script>
-        // 운전 중 맞춤 3단계 개편 (1단계: 순수 듣기 / 2단계: 끊어읽기 & 대형 폰트 / 3단계: 무한 반복 섀도잉)
         const steps = [
             { step: 1, title: "Step 1: 순수 귀로 듣기 (화면 숨김)", desc: "운전 중에 화면을 보지 않고 오직 귀로만 들으며 전체 맥락을 파악합니다." },
-            { step: 2, title: "Step 2: 의미 단위 끊어 읽기 (대형 폰트)", desc: "청크 단위(/)로 0.5초씩 쉬어가며 억양을 체화합니다." },
+            { step: 2, title: "Step 2: 문장별 구절 순차 학습", desc: "'다음 단계'를 누르면 청크(/) 단위로 한 줄씩 순차적으로 나타납니다." },
             { step: 3, title: "Step 3: 섀도잉 및 무한 반복", desc: "음성이 자동 반복됩니다. 소리를 따라 입으로 뱉어보세요." }
         ];
 
         let currentStepIdx = 0;
         let currentSentenceIdx = 0;
+        let currentChunkIdx = 0; // 2단계에서 청크 슬라이드 추적용
         let currentAudioObject = null;
         let selectedSpeed = 1.0;
-        let isWritingMode = false; // 영작 모드 여부
-        let completedCount = parseInt(localStorage.getItem('completed_count') || '0');
+        let isWritingMode = false;
         
         let sentences = [
             {
+                id: "default-1",
+                title: "주말 동네 공원 산책 루틴",
                 en: "Well, to be honest, I usually spend my weekends at a local park near my apartment because it’s a great place to unwind after a busy work week.",
                 en_chunked: "Well, to be honest, / I usually spend my weekends / at a local park / near my apartment / because it’s a great place / to unwind after a busy work week.",
+                chunks: [
+                    "Well, to be honest,",
+                    "I usually spend my weekends",
+                    "at a local park",
+                    "near my apartment",
+                    "because it’s a great place",
+                    "to unwind after a busy work week."
+                ],
                 ko: "음, 솔직히 말해서, 저는 바쁜 한 주를 보내고 나서 쉬기에 정말 좋은 공간이라 보통 주말에 아파트 근처 동네 공원에서 시간을 보내요.",
                 expressions: ["to be honest", "unwind", "after a busy work week"],
                 patterns: [
                     "I usually spend my weekends at a local park.",
-                    "I usually spend my evenings at home.",
-                    "I usually spend my holidays with my family."
+                    "I usually spend my evenings at home."
                 ]
             }
         ];
@@ -285,283 +298,3 @@
             const gKey = document.getElementById('g-api-key').value.trim();
             const gVoice = document.getElementById('g-voice-name').value;
             if (gKey) {
-                localStorage.setItem('g_api_key', gKey);
-                localStorage.setItem('g_voice_name', gVoice);
-                document.getElementById('tts-status-tag').className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700";
-                document.getElementById('tts-status-tag').innerText = "Google TTS";
-            } else {
-                localStorage.removeItem('g_api_key');
-                localStorage.removeItem('g_voice_name');
-                document.getElementById('tts-status-tag').className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
-                document.getElementById('tts-status-tag').innerText = "기본 TTS";
-            }
-
-            const url = document.getElementById('sb-url').value.trim();
-            const key = document.getElementById('sb-key').value.trim();
-            if (url && key) {
-                localStorage.setItem('sb_url', url);
-                localStorage.setItem('sb_key', key);
-                initSupabase(url, key);
-            } else {
-                localStorage.removeItem('sb_url');
-                localStorage.removeItem('sb_key');
-                supabaseClient = null;
-                document.getElementById('db-status-badge').className = "inline-block w-2 h-2 rounded-full bg-amber-400";
-                document.getElementById('db-status-text').innerText = "로컬 DB";
-            }
-            closeConfigModal();
-            alert("설정이 저장되었습니다.");
-        }
-
-        function initSupabase(url, key) {
-            try {
-                supabaseClient = supabase.createClient(url, key);
-                document.getElementById('db-status-badge').className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-                document.getElementById('db-status-text').innerText = "Supabase 연동";
-                fetchSupabaseData();
-            } catch (e) { console.error(e); }
-        }
-
-        async function fetchSupabaseData() {
-            if (!supabaseClient) return;
-            const { data, error } = await supabaseClient.from('english_sentences').select('*').order('created_at', { ascending: false });
-            if (!error && data && data.length > 0) {
-                sentences = data;
-                currentSentenceIdx = 0;
-                renderCurrentView();
-            }
-        }
-
-        function toggleSpeed() {
-            selectedSpeed = selectedSpeed === 1.0 ? 0.75 : 1.0;
-            document.getElementById('speed-text').innerText = `${selectedSpeed}x`;
-            if (currentAudioObject) currentAudioObject.playbackRate = selectedSpeed;
-        }
-
-        function toggleWritingMode() {
-            isWritingMode = !isWritingMode;
-            document.getElementById('writing-status').innerText = isWritingMode ? "ON" : "OFF";
-            document.getElementById('writing-status').className = isWritingMode ? "text-indigo-600 font-bold" : "text-slate-500";
-            renderCurrentView();
-        }
-
-        function revealWritingAnswer() {
-            document.getElementById('writing-answer-box').classList.remove('hidden');
-            document.getElementById('reveal-btn').classList.add('hidden');
-        }
-
-        async function speakCurrentSentence() {
-            const s = sentences[currentSentenceIdx];
-            if (!s) return;
-
-            const apiKey = localStorage.getItem('g_api_key');
-            const voiceName = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
-
-            if (currentAudioObject) {
-                currentAudioObject.pause();
-                currentAudioObject = null;
-            }
-
-            const btnIcon = document.getElementById('tts-btn-icon');
-            btnIcon.innerText = "⏳";
-
-            const isChunkMode = currentStepIdx === 1;
-
-            if (apiKey) {
-                const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
-                let requestInput = {};
-
-                if (isChunkMode && s.en_chunked) {
-                    const cleanChunked = s.en_chunked.replaceAll('/', '<break time="500ms"/>');
-                    requestInput = { ssml: `<speak>${cleanChunked}</speak>` };
-                } else {
-                    requestInput = { text: s.en_chunked ? s.en_chunked.replaceAll('/', '') : s.en };
-                }
-
-                const requestBody = {
-                    input: requestInput,
-                    voice: { languageCode: 'en-US', name: voiceName },
-                    audioConfig: { audioEncoding: 'MP3', speakingRate: selectedSpeed }
-                };
-
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(requestBody)
-                    });
-                    const data = await response.json();
-                    if (data.audioContent) {
-                        const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
-                        audio.playbackRate = selectedSpeed;
-                        currentAudioObject = audio;
-                        if (currentStepIdx === 2) audio.loop = true;
-                        audio.play();
-                        audio.onended = () => { if (!audio.loop) btnIcon.innerText = "🔊"; };
-                        btnIcon.innerText = "🔊";
-                    } else {
-                        btnIcon.innerText = "🔊";
-                    }
-                } catch (e) {
-                    btnIcon.innerText = "🔊";
-                }
-            } else {
-                if (!('speechSynthesis' in window)) { btnIcon.innerText = "🔊"; return; }
-                window.speechSynthesis.cancel();
-                let textToSpeak = isChunkMode && s.en_chunked ? s.en_chunked.replaceAll('/', ', ') : s.en;
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'en-US';
-                utterance.rate = selectedSpeed;
-                utterance.onend = () => { btnIcon.innerText = "🔊"; };
-                window.speechSynthesis.speak(utterance);
-                btnIcon.innerText = "🔊";
-            }
-        }
-
-        function renderCurrentView() {
-            if (sentences.length === 0) return;
-            if (currentAudioObject) {
-                currentAudioObject.pause();
-                currentAudioObject = null;
-                document.getElementById('tts-btn-icon').innerText = "🔊";
-            }
-
-            const s = sentences[currentSentenceIdx];
-            const st = steps[currentStepIdx];
-
-            document.getElementById('sentence-counter').innerText = `문장 ${currentSentenceIdx + 1} / ${sentences.length}`;
-            document.getElementById('step-badge').innerText = `Step ${st.step}`;
-            document.getElementById('step-title').innerText = st.title;
-            document.getElementById('step-desc').innerText = st.desc;
-
-            const contentDisplay = document.getElementById('content-display');
-            const writingDisplay = document.getElementById('writing-display');
-            const koBox = document.getElementById('ko-box');
-
-            if (isWritingMode) {
-                contentDisplay.classList.add('hidden');
-                writingDisplay.classList.remove('hidden');
-                koBox.classList.add('hidden');
-                document.getElementById('writing-ko-prompt').innerText = s.ko;
-                document.getElementById('writing-answer-box').innerText = s.en;
-                document.getElementById('writing-answer-box').classList.add('hidden');
-                document.getElementById('reveal-btn').classList.remove('hidden');
-            } else {
-                writingDisplay.classList.add('hidden');
-                contentDisplay.classList.remove('hidden');
-                koBox.classList.remove('hidden');
-
-                // Step 1에서는 안전과 집중을 위해 텍스트 숨김 처리
-                if (currentStepIdx === 0) {
-                    contentDisplay.innerHTML = `<span class="text-slate-400 text-sm font-normal">🎧 화면을 보지 말고 귀로만 집중해서 들어보세요</span>`;
-                } else if (currentStepIdx === 1 && s.en_chunked) {
-                    contentDisplay.innerText = s.en_chunked;
-                } else {
-                    contentDisplay.innerText = s.en;
-                }
-            }
-
-            document.getElementById('ko-display').innerText = s.ko;
-
-            // 핵심 표현 렌더링
-            const exprContainer = document.getElementById('expressions-container');
-            const exprChips = document.getElementById('expression-chips');
-            exprChips.innerHTML = '';
-            if (s.expressions && s.expressions.length > 0) {
-                exprContainer.classList.remove('hidden');
-                s.expressions.forEach(ex => {
-                    const chip = document.createElement('span');
-                    chip.className = "bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-indigo-100";
-                    chip.innerText = ex;
-                    exprChips.appendChild(chip);
-                });
-            } else {
-                exprContainer.classList.add('hidden');
-            }
-
-            // 변형 패턴 렌더링
-            const patternsContainer = document.getElementById('patterns-container');
-            const patternList = document.getElementById('pattern-list');
-            patternList.innerHTML = '';
-            if (s.patterns && s.patterns.length > 0) {
-                patternsContainer.classList.remove('hidden');
-                s.patterns.forEach(p => {
-                    const div = document.createElement('div');
-                    div.className = "text-[11px] text-slate-700 font-medium bg-white p-1.5 rounded-lg border border-slate-200";
-                    div.innerText = "• " + p;
-                    patternList.appendChild(div);
-                });
-            } else {
-                patternsContainer.classList.add('hidden');
-            }
-
-            document.getElementById('next-btn-text').innerText = currentStepIdx < 2 ? `Step ${st.step + 1}로 ➔` : "완료 (다음 문장)";
-        }
-
-        function changeStep(direction) {
-            currentStepIdx += direction;
-            if (currentStepIdx > 2) {
-                currentStepIdx = 0;
-                completedCount++;
-                localStorage.setItem('completed_count', completedCount);
-                nextSentence();
-                return;
-            }
-            if (currentStepIdx < 0) currentStepIdx = 2;
-            renderCurrentView();
-        }
-
-        function nextSentence() {
-            currentSentenceIdx = (currentSentenceIdx + 1) % sentences.length;
-            currentStepIdx = 0;
-            renderCurrentView();
-        }
-
-        function openStatsModal() {
-            document.getElementById('stat-completed-count').innerText = `${completedCount}회`;
-            document.getElementById('stat-total-sentences').innerText = `${sentences.length}개`;
-            document.getElementById('stats-modal').classList.remove('hidden');
-            document.getElementById('stats-modal').classList.add('flex');
-        }
-        function closeStatsModal() { document.getElementById('stats-modal').classList.remove('flex'); document.getElementById('stats-modal').classList.add('hidden'); }
-
-        function openConfigModal() { document.getElementById('config-modal').classList.remove('hidden'); document.getElementById('config-modal').classList.add('flex'); }
-        function closeConfigModal() { document.getElementById('config-modal').classList.remove('flex'); document.getElementById('config-modal').classList.add('hidden'); }
-        
-        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('add-modal').classList.add('flex'); }
-        function closeAddModal() { document.getElementById('add-modal').classList.remove('flex'); document.getElementById('add-modal').classList.add('hidden'); }
-
-        async function addNewSentence() {
-            const en = document.getElementById('new-en').value.trim();
-            const en_chunked = document.getElementById('new-chunked').value.trim();
-            const ko = document.getElementById('new-ko').value.trim();
-            const exprInput = document.getElementById('new-expr').value.trim();
-            const expressions = exprInput ? exprInput.split(',').map(e => e.trim()) : [];
-
-            if (!en || !ko) {
-                alert("영어 원문과 한국어 해석은 필수입니다.");
-                return;
-            }
-
-            const newObj = { en, en_chunked: en_chunked || en, ko, expressions, patterns: [] };
-
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient.from('english_sentences').insert([newObj]).select();
-                if (!error && data) sentences.unshift(data[0]);
-            } else {
-                sentences.unshift(newObj);
-            }
-
-            currentSentenceIdx = 0;
-            currentStepIdx = 0;
-            renderCurrentView();
-            closeAddModal();
-
-            document.getElementById('new-en').value = '';
-            document.getElementById('new-chunked').value = '';
-            document.getElementById('new-ko').value = '';
-            document.getElementById('new-expr').value = '';
-        }
-    </script>
-</body>
-</html>
