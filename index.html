@@ -88,10 +88,530 @@
                 <p id="step-desc" class="text-[11px] text-slate-500 mb-3 leading-relaxed">단계별 설명이 여기에 표시됩니다.</p>
             </div>
 
-            <!-- 핵심 문장 컨텐츠 (대형 폰트) -->
+            <!-- 핵심 문장 컨텐츠 -->
             <div class="my-auto py-2 border-y border-slate-100 flex flex-col items-center justify-center">
                 <div id="content-display" class="text-2xl sm:text-3xl font-bold text-slate-900 leading-snug text-center tracking-tight">
                     문장을 불러오는 중...
                 </div>
                 <div id="writing-display" class="hidden text-center w-full">
-                    <div class="text-[11px] font-semibold text-indigo-6
+                    <div class="text-[11px] font-semibold text-indigo-600 mb-1">🧠 한글 보고 영작하기</div>
+                    <div id="writing-ko-prompt" class="text-xl sm:text-2xl font-bold text-slate-800 mb-3">한국어 해석</div>
+                    <button onclick="revealWritingAnswer()" id="reveal-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-xs font-bold transition">
+                        👁️ 정답(영어 원문) 보기
+                    </button>
+                    <div id="writing-answer-box" class="hidden mt-3 p-3 bg-slate-50 rounded-xl text-lg font-semibold text-slate-900">
+                        영어 원문
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단부 추가 기능 영역 -->
+            <div class="space-y-2 mt-2 shrink-0">
+                <div id="expressions-container" class="hidden flex flex-wrap gap-1 items-center">
+                    <span class="text-[10px] font-bold text-slate-400 mr-1">🔑 핵심표현:</span>
+                    <div id="expression-chips" class="flex flex-wrap gap-1"></div>
+                </div>
+
+                <div id="patterns-container" class="hidden bg-slate-50 p-2 rounded-xl border border-slate-100">
+                    <div class="text-[10px] font-bold text-indigo-600 mb-1">🔄 변형 패턴 연습</div>
+                    <div id="pattern-list" class="space-y-1"></div>
+                </div>
+
+                <div id="ko-box" class="bg-slate-50 p-2.5 rounded-xl">
+                    <div class="text-[10px] font-semibold text-slate-400 mb-0.5">💡 전체 한국어 해석</div>
+                    <div id="ko-display" class="text-xs text-slate-700 leading-normal">
+                        해석 내용
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 네비게이션 바 -->
+        <nav class="grid grid-cols-5 gap-2 shrink-0">
+            <button onclick="changeStep(-1)" class="bg-white border border-slate-200 hover:bg-slate-50 py-3 rounded-xl font-semibold text-xs text-slate-700 flex flex-col items-center justify-center shadow-sm">
+                <span>◀</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">이전단계</span>
+            </button>
+            <button onclick="changeStep(1)" class="col-span-3 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1 shadow-md shadow-indigo-100 transition">
+                <span id="next-btn-text">다음 단계로 ➔</span>
+            </button>
+            <button onclick="nextSentence()" class="bg-white border border-slate-200 hover:bg-slate-50 py-3 rounded-xl font-semibold text-xs text-slate-700 flex flex-col items-center justify-center shadow-sm">
+                <span>⏭️</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">다음문제</span>
+            </button>
+        </nav>
+    </main>
+
+    <!-- 모달들 -->
+    <div id="select-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3 shrink-0">
+                <h3 class="font-bold text-base text-slate-800">📚 학습할 문제 선택</h3>
+                <button onclick="closeSelectModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <div id="problem-list-container" class="flex-1 overflow-y-auto space-y-2 mb-4"></div>
+            <button onclick="closeSelectModal()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs shrink-0">닫기</button>
+        </div>
+    </div>
+
+    <div id="stats-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3 shrink-0">
+                <h3 class="font-bold text-base text-slate-800">📊 문제별 학습 통계</h3>
+                <button onclick="closeStatsModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <div id="stats-list-container" class="flex-1 overflow-y-auto space-y-2 mb-4"></div>
+            <button onclick="closeStatsModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs shrink-0">확인</button>
+        </div>
+    </div>
+
+    <div id="config-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="font-bold text-base text-slate-800">앱 서비스 연동 설정</h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <div class="mb-4">
+                <h4 class="font-semibold text-xs text-indigo-700 mb-2">🗣️ Google Cloud TTS 설정</h4>
+                <div class="space-y-2">
+                    <input type="password" id="g-api-key" placeholder="Google Cloud API Key" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                    <select id="g-voice-name" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white">
+                        <option value="en-US-Neural2-F">en-US-Neural2-F (여성 고품질)</option>
+                        <option value="en-US-Neural2-D">en-US-Neural2-D (남성 고품질)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-4 border-t pt-3">
+                <h4 class="font-semibold text-xs text-emerald-700 mb-2">🗄️ Supabase DB 설정</h4>
+                <div class="space-y-2">
+                    <input type="text" id="sb-url" placeholder="Project URL" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                    <input type="password" id="sb-key" placeholder="Anon Public Key" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="clearAllConfigs()" class="w-1/2 bg-rose-100 hover:bg-rose-200 text-rose-700 py-2.5 rounded-xl font-semibold text-xs">설정 초기화</button>
+                <button onclick="saveAllConfigs()" class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs">저장 및 적용</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-base text-slate-800">새로운 문제 등록</h3>
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <div class="space-y-3 mb-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">문제 제목</label>
+                    <input type="text" id="new-title" placeholder="주말 루틴 이야기" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">영어 원문 (en)</label>
+                    <textarea id="new-en" rows="2" placeholder="Well, to be honest..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">한국어 해석 (ko)</label>
+                    <input type="text" id="new-ko" placeholder="음, 솔직히 말해서..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">핵심 표현 (쉼표 구분)</label>
+                    <input type="text" id="new-expr" placeholder="to be honest, unwind" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                </div>
+            </div>
+            <button onclick="addNewSentence()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs">저장하기</button>
+        </div>
+    </div>
+
+    <script>
+        const steps = [
+            { step: 1, title: "Step 1: 순수 귀로 듣기 (화면 숨김)", desc: "운전 중에 화면을 보지 않고 오직 귀로만 들으며 전체 맥락을 파악합니다." },
+            { step: 2, title: "Step 2: 문장 단위 순차 학습", desc: "'다음 단계'를 누르면 다음 문장으로 큼직하게 넘어갑니다." },
+            { step: 3, title: "Step 3: 섀도잉 및 무한 반복", desc: "음성이 자동 반복됩니다. 소리를 따라 입으로 뱉어보세요." }
+        ];
+
+        let currentStepIdx = 0;
+        let currentSentenceIdx = 0;
+        let currentAudioObject = null;
+        let selectedSpeed = 1.0;
+        let isWritingMode = false;
+        
+        // 기본 안전 데이터 (DB 연결 실패 시에도 절대 멈추지 않음)
+        let sentences = [
+            {
+                id: "default-1",
+                title: "주말 동네 공원 산책 루틴",
+                en: "Well, to be honest, I usually spend my weekends at a local park near my apartment because it’s a great place to unwind after a busy work week.",
+                ko: "음, 솔직히 말해서, 저는 바쁜 한 주를 보내고 나서 쉬기에 정말 좋은 공간이라 보통 주말에 아파트 근처 동네 공원에서 시간을 보내요.",
+                expressions: ["to be honest", "unwind", "after a busy work week"],
+                patterns: ["I usually spend my weekends at a local park."]
+            }
+        ];
+
+        let supabaseClient = null;
+
+        // 즉시 실행 및 안전한 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                loadAllConfigs();
+                renderCurrentView();
+            } catch (e) {
+                console.error("Init Error:", e);
+                renderCurrentView();
+            }
+        });
+
+        function loadAllConfigs() {
+            try {
+                const gKey = localStorage.getItem('g_api_key');
+                const gVoice = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
+                if (gKey && document.getElementById('g-api-key')) {
+                    document.getElementById('g-api-key').value = gKey;
+                    document.getElementById('g-voice-name').value = gVoice;
+                    document.getElementById('tts-status-tag').className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700";
+                    document.getElementById('tts-status-tag').innerText = "Google TTS";
+                }
+
+                const url = localStorage.getItem('sb_url');
+                const key = localStorage.getItem('sb_key');
+                if (url && key) {
+                    if (document.getElementById('sb-url')) document.getElementById('sb-url').value = url;
+                    if (document.getElementById('sb-key')) document.getElementById('sb-key').value = key;
+                    initSupabase(url, key);
+                }
+            } catch (err) {
+                console.error("Config Load Error:", err);
+            }
+        }
+
+        function saveAllConfigs() {
+            try {
+                const gKey = document.getElementById('g-api-key').value.trim();
+                const gVoice = document.getElementById('g-voice-name').value;
+                if (gKey) {
+                    localStorage.setItem('g_api_key', gKey);
+                    localStorage.setItem('g_voice_name', gVoice);
+                } else {
+                    localStorage.removeItem('g_api_key');
+                    localStorage.removeItem('g_voice_name');
+                }
+
+                const url = document.getElementById('sb-url').value.trim();
+                const key = document.getElementById('sb-key').value.trim();
+                if (url && key) {
+                    localStorage.setItem('sb_url', url);
+                    localStorage.setItem('sb_key', key);
+                    initSupabase(url, key);
+                } else {
+                    localStorage.removeItem('sb_url');
+                    localStorage.removeItem('sb_key');
+                    supabaseClient = null;
+                }
+                closeConfigModal();
+                alert("설정이 저장되었습니다.");
+                location.reload();
+            } catch (e) {
+                alert("설정 저장 중 오류가 발생했습니다.");
+            }
+        }
+
+        // 설정 초기화 버튼 기능 추가 (설정 모달이 안 열릴 때를 대비)
+        function clearAllConfigs() {
+            localStorage.clear();
+            alert("모든 설정이 초기화되었습니다. 페이지가 새로고침됩니다.");
+            location.reload();
+        }
+
+        function initSupabase(url, key) {
+            try {
+                supabaseClient = supabase.createClient(url, key);
+                document.getElementById('db-status-badge').className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                document.getElementById('db-status-text').innerText = "Supabase 연동";
+                fetchSupabaseData();
+            } catch (e) { 
+                console.error("Supabase Init Error:", e); 
+            }
+        }
+
+        async function fetchSupabaseData() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.from('english_sentences').select('*').order('created_at', { ascending: false });
+                if (!error && data && data.length > 0) {
+                    sentences = data;
+                    currentSentenceIdx = 0;
+                    renderCurrentView();
+                }
+            } catch (err) {
+                console.error("DB Fetch Error:", err);
+            }
+        }
+
+        function toggleSpeed() {
+            selectedSpeed = selectedSpeed === 1.0 ? 0.75 : 1.0;
+            document.getElementById('speed-text').innerText = `${selectedSpeed}x`;
+            if (currentAudioObject) currentAudioObject.playbackRate = selectedSpeed;
+        }
+
+        function toggleWritingMode() {
+            isWritingMode = !isWritingMode;
+            document.getElementById('writing-status').innerText = isWritingMode ? "ON" : "OFF";
+            document.getElementById('writing-status').className = isWritingMode ? "text-indigo-600 font-bold" : "text-slate-500";
+            renderCurrentView();
+        }
+
+        function revealWritingAnswer() {
+            document.getElementById('writing-answer-box').classList.remove('hidden');
+            document.getElementById('reveal-btn').classList.add('hidden');
+        }
+
+        async function speakCurrentContent() {
+            const s = sentences[currentSentenceIdx] || sentences[0];
+            if (!s) return;
+
+            const apiKey = localStorage.getItem('g_api_key');
+            const voiceName = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
+
+            if (currentAudioObject) {
+                currentAudioObject.pause();
+                currentAudioObject = null;
+            }
+
+            const btnIcon = document.getElementById('tts-btn-icon');
+            btnIcon.innerText = "⏳";
+
+            let textToSpeak = s.en;
+
+            if (apiKey) {
+                const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
+                const requestBody = {
+                    input: { text: textToSpeak },
+                    voice: { languageCode: 'en-US', name: voiceName },
+                    audioConfig: { audioEncoding: 'MP3', speakingRate: selectedSpeed }
+                };
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody)
+                    });
+                    const data = await response.json();
+                    if (data.audioContent) {
+                        const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
+                        audio.playbackRate = selectedSpeed;
+                        currentAudioObject = audio;
+                        if (currentStepIdx === 2) audio.loop = true;
+                        audio.play();
+                        audio.onended = () => { if (!audio.loop) btnIcon.innerText = "🔊"; };
+                        btnIcon.innerText = "🔊";
+                    } else { btnIcon.innerText = "🔊"; }
+                } catch (e) { btnIcon.innerText = "🔊"; }
+            } else {
+                if (!('speechSynthesis' in window)) { btnIcon.innerText = "🔊"; return; }
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'en-US';
+                utterance.rate = selectedSpeed;
+                utterance.onend = () => { btnIcon.innerText = "🔊"; };
+                window.speechSynthesis.speak(utterance);
+                btnIcon.innerText = "🔊";
+            }
+        }
+
+        function renderCurrentView() {
+            if (!sentences || sentences.length === 0) return;
+            if (currentAudioObject) {
+                currentAudioObject.pause();
+                currentAudioObject = null;
+                document.getElementById('tts-btn-icon').innerText = "🔊";
+            }
+
+            const s = sentences[currentSentenceIdx] || sentences[0];
+            const st = steps[currentStepIdx] || steps[0];
+
+            document.getElementById('current-header-title').innerText = s.title || `문제 ${currentSentenceIdx + 1}`;
+            document.getElementById('sentence-counter').innerText = `문제 ${currentSentenceIdx + 1} / ${sentences.length}`;
+            document.getElementById('step-badge').innerText = `Step ${st.step}`;
+            document.getElementById('step-title').innerText = st.title;
+            document.getElementById('step-desc').innerText = st.desc;
+
+            const contentDisplay = document.getElementById('content-display');
+            const writingDisplay = document.getElementById('writing-display');
+            const koBox = document.getElementById('ko-box');
+
+            if (isWritingMode) {
+                contentDisplay.classList.add('hidden');
+                writingDisplay.classList.remove('hidden');
+                koBox.classList.add('hidden');
+                document.getElementById('writing-ko-prompt').innerText = s.ko || "";
+                document.getElementById('writing-answer-box').innerText = s.en || "";
+                document.getElementById('writing-answer-box').classList.add('hidden');
+                document.getElementById('reveal-btn').classList.remove('hidden');
+            } else {
+                writingDisplay.classList.add('hidden');
+                contentDisplay.classList.remove('hidden');
+                koBox.classList.remove('hidden');
+
+                if (currentStepIdx === 0) {
+                    contentDisplay.innerHTML = `<span class="text-slate-400 text-sm font-normal">🎧 화면을 보지 말고 귀로만 집중해서 들어보세요</span>`;
+                } else {
+                    contentDisplay.innerText = s.en || "";
+                }
+            }
+
+            document.getElementById('ko-display').innerText = s.ko || "";
+
+            // 핵심 표현 렌더링
+            const exprContainer = document.getElementById('expressions-container');
+            const exprChips = document.getElementById('expression-chips');
+            exprChips.innerHTML = '';
+            if (s.expressions && Array.isArray(s.expressions) && s.expressions.length > 0) {
+                exprContainer.classList.remove('hidden');
+                s.expressions.forEach(ex => {
+                    const chip = document.createElement('span');
+                    chip.className = "bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-indigo-100";
+                    chip.innerText = ex;
+                    exprChips.appendChild(chip);
+                });
+            } else { exprContainer.classList.add('hidden'); }
+
+            // 변형 패턴 렌더링
+            const patternsContainer = document.getElementById('patterns-container');
+            const patternList = document.getElementById('pattern-list');
+            patternList.innerHTML = '';
+            if (s.patterns && Array.isArray(s.patterns) && s.patterns.length > 0) {
+                patternsContainer.classList.remove('hidden');
+                s.patterns.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = "text-[11px] text-slate-700 font-medium bg-white p-1.5 rounded-lg border border-slate-200";
+                    div.innerText = "• " + p;
+                    patternList.appendChild(div);
+                });
+            } else { patternsContainer.classList.add('hidden'); }
+
+            document.getElementById('next-btn-text').innerText = currentStepIdx < 2 ? `Step ${st.step + 1}로 ➔` : "완료 (다음 문제)";
+        }
+
+        function changeStep(direction) {
+            currentStepIdx += direction;
+            if (currentStepIdx > 2) {
+                currentStepIdx = 0;
+                recordCompletion(sentences[currentSentenceIdx]?.id || currentSentenceIdx);
+                nextSentence();
+                return;
+            }
+            if (currentStepIdx < 0) {
+                currentStepIdx = 2;
+            }
+            renderCurrentView();
+        }
+
+        function nextSentence() {
+            currentSentenceIdx = (currentSentenceIdx + 1) % sentences.length;
+            currentStepIdx = 0;
+            renderCurrentView();
+        }
+
+        function recordCompletion(id) {
+            try {
+                let stats = JSON.parse(localStorage.getItem('problem_stats') || '{}');
+                stats[id] = (stats[id] || 0) + 1;
+                localStorage.setItem('problem_stats', JSON.stringify(stats));
+            } catch (e) {}
+        }
+
+        function openSelectModal() {
+            const container = document.getElementById('problem-list-container');
+            container.innerHTML = '';
+            sentences.forEach((s, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3 rounded-xl border text-xs font-semibold flex justify-between items-center transition ${idx === currentSentenceIdx ? 'bg-indigo-50 border-indigo-300 text-indigo-900' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`;
+                btn.innerHTML = `<span>문제 ${idx + 1}. ${s.title || (s.en ? s.en.substring(0, 30) + '...' : '')}</span> <span class="text-[10px] text-slate-400">선택 ➔</span>`;
+                btn.onclick = () => {
+                    currentSentenceIdx = idx;
+                    currentStepIdx = 0;
+                    renderCurrentView();
+                    closeSelectModal();
+                };
+                container.appendChild(btn);
+            });
+            document.getElementById('select-modal').classList.remove('hidden');
+            document.getElementById('select-modal').classList.add('flex');
+        }
+        function closeSelectModal() { document.getElementById('select-modal').classList.remove('flex'); document.getElementById('select-modal').classList.add('hidden'); }
+
+        function openStatsModal() {
+            const stats = JSON.parse(localStorage.getItem('problem_stats') || '{}');
+            const container = document.getElementById('stats-list-container');
+            container.innerHTML = '';
+            sentences.forEach((s, idx) => {
+                const count = stats[s.id || idx] || 0;
+                const div = document.createElement('div');
+                div.className = "bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-center";
+                div.innerHTML = `
+                    <div>
+                        <div class="text-xs font-bold text-slate-800">문제 ${idx + 1}. ${s.title || '제목 없음'}</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">${s.en || ''}</div>
+                    </div>
+                    <div class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-xs font-bold shrink-0">${count}회 완료</div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('stats-modal').classList.remove('hidden');
+            document.getElementById('stats-modal').classList.add('flex');
+        }
+        function closeStatsModal() { document.getElementById('stats-modal').classList.remove('flex'); document.getElementById('stats-modal').classList.add('hidden'); }
+
+        function openConfigModal() { document.getElementById('config-modal').classList.remove('hidden'); document.getElementById('config-modal').classList.add('flex'); }
+        function closeConfigModal() { document.getElementById('config-modal').classList.remove('flex'); document.getElementById('config-modal').classList.add('hidden'); }
+        
+        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('add-modal').classList.add('flex'); }
+        function closeAddModal() { document.getElementById('add-modal').classList.remove('flex'); document.getElementById('add-modal').classList.add('hidden'); }
+
+        async function addNewSentence() {
+            const title = document.getElementById('new-title').value.trim();
+            const en = document.getElementById('new-en').value.trim();
+            const ko = document.getElementById('new-ko').value.trim();
+            const exprInput = document.getElementById('new-expr').value.trim();
+            const expressions = exprInput ? exprInput.split(',').map(e => e.trim()) : [];
+
+            if (!en || !ko) {
+                alert("영어 원문과 한국어 해석은 필수입니다.");
+                return;
+            }
+
+            const newObj = {
+                id: 'prob-' + Date.now(),
+                title: title || '새로운 문제',
+                en,
+                ko,
+                expressions,
+                patterns: []
+            };
+
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('english_sentences').insert([newObj]).select();
+                    if (!error && data) sentences.unshift(data[0]);
+                    else sentences.unshift(newObj);
+                } catch (e) {
+                    sentences.unshift(newObj);
+                }
+            } else {
+                sentences.unshift(newObj);
+            }
+
+            currentSentenceIdx = 0;
+            currentStepIdx = 0;
+            renderCurrentView();
+            closeAddModal();
+
+            document.getElementById('new-title').value = '';
+            document.getElementById('new-en').value = '';
+            document.getElementById('new-ko').value = '';
+            document.getElementById('new-expr').value = '';
+        }
+    </script>
+</body>
+</html>
