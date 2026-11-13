@@ -26,11 +26,11 @@
     <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-10 shrink-0">
         <div class="flex items-center space-x-2">
             <span class="text-xl">🎧</span>
-            <h1 class="font-bold text-base text-slate-800" id="current-header-title">영어 귀뚫기 훈련</h1>
+            <h1 class="font-bold text-base text-slate-800 truncate max-w-[140px] sm:max-w-[200px]" id="current-topic-title">영어 귀뚫기 훈련</h1>
         </div>
         <div class="flex items-center space-x-1 sm:space-x-2">
-            <button onclick="openSelectModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
-                📚 문제선택
+            <button onclick="openTopicModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                📚 주제선택
             </button>
             <button onclick="openStatsModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
                 📊 통계
@@ -49,7 +49,7 @@
         
         <!-- 상단 정보 및 진행 상황 -->
         <div class="flex items-center justify-between mb-2 shrink-0">
-            <div class="text-xs font-medium text-slate-500" id="sentence-counter">문제 1 / 1</div>
+            <div class="text-xs font-medium text-slate-500" id="sentence-counter">문장 1 / 1</div>
             <div class="flex items-center space-x-2">
                 <span id="tts-status-tag" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
                     기본 TTS
@@ -71,11 +71,11 @@
                         Step 1
                     </span>
                     
-                    <div class="flex items-center space-x-2">
-                        <button onclick="toggleWritingMode()" id="writing-mode-btn" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
-                            ✏️ 영작모드: <span id="writing-status">OFF</span>
+                    <div class="flex items-center space-x-1.5">
+                        <button onclick="toggleWritingMode()" id="writing-mode-btn" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                            ✏️ 영작: <span id="writing-status" class="text-slate-500">OFF</span>
                         </button>
-                        <button id="speed-btn" onclick="toggleSpeed()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition flex items-center gap-1">
+                        <button id="speed-btn" onclick="toggleSpeed()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition flex items-center gap-1">
                             🚀 <span id="speed-text">1.0x</span>
                         </button>
                         <button id="tts-play-btn" onclick="speakCurrentContent()" class="p-2.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition flex items-center justify-center" title="음성 듣기">
@@ -88,10 +88,10 @@
                 <p id="step-desc" class="text-[11px] text-slate-500 mb-3 leading-relaxed">단계별 설명이 여기에 표시됩니다.</p>
             </div>
 
-            <!-- 핵심 문장 컨텐츠 -->
-            <div class="my-auto py-2 border-y border-slate-100 flex flex-col items-center justify-center">
+            <!-- 핵심 문장 컨텐츠 (운전 중 가독성 최우선 대형 폰트) -->
+            <div class="my-auto py-3 border-y border-slate-100 flex flex-col items-center justify-center">
                 <div id="content-display" class="text-2xl sm:text-3xl font-bold text-slate-900 leading-snug text-center tracking-tight">
-                    문장을 불러오는 중...
+                    로딩 중...
                 </div>
                 <div id="writing-display" class="hidden text-center w-full">
                     <div class="text-[11px] font-semibold text-indigo-600 mb-1">🧠 한글 보고 영작하기</div>
@@ -107,18 +107,18 @@
 
             <!-- 하단부 추가 기능 영역 -->
             <div class="space-y-2 mt-2 shrink-0">
-                <div id="expressions-container" class="hidden flex flex-wrap gap-1 items-center">
-                    <span class="text-[10px] font-bold text-slate-400 mr-1">🔑 핵심표현:</span>
-                    <div id="expression-chips" class="flex flex-wrap gap-1"></div>
+                <div id="expressions-container" class="hidden flex flex-wrap gap-1.5 items-center">
+                    <span class="text-[10px] font-bold text-slate-400 mr-0.5">🔑 핵심표현:</span>
+                    <div id="expression-chips" class="flex flex-wrap gap-1.5"></div>
                 </div>
 
-                <div id="patterns-container" class="hidden bg-slate-50 p-2 rounded-xl border border-slate-100">
-                    <div class="text-[10px] font-bold text-indigo-600 mb-1">🔄 변형 패턴 연습</div>
+                <div id="patterns-container" class="hidden bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                    <div class="text-[10px] font-bold text-indigo-600 mb-1">🔄 변형 패턴 연습 (터치 시 재생)</div>
                     <div id="pattern-list" class="space-y-1"></div>
                 </div>
 
                 <div id="ko-box" class="bg-slate-50 p-2.5 rounded-xl">
-                    <div class="text-[10px] font-semibold text-slate-400 mb-0.5">💡 전체 한국어 해석</div>
+                    <div class="text-[10px] font-semibold text-slate-400 mb-0.5">💡 한국어 해석</div>
                     <div id="ko-display" class="text-xs text-slate-700 leading-normal">
                         해석 내용
                     </div>
@@ -132,32 +132,33 @@
                 <span>◀</span>
                 <span class="text-[10px] text-slate-400 mt-0.5">이전단계</span>
             </button>
-            <button onclick="changeStep(1)" class="col-span-3 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1 shadow-md shadow-indigo-100 transition">
+            <button onclick="changeStep(1)" class="col-span-3 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-1 shadow-md shadow-indigo-100 transition">
                 <span id="next-btn-text">다음 단계로 ➔</span>
             </button>
-            <button onclick="nextSentence()" class="bg-white border border-slate-200 hover:bg-slate-50 py-3 rounded-xl font-semibold text-xs text-slate-700 flex flex-col items-center justify-center shadow-sm">
+            <button onclick="nextTopic()" class="bg-white border border-slate-200 hover:bg-slate-50 py-3 rounded-xl font-semibold text-xs text-slate-700 flex flex-col items-center justify-center shadow-sm">
                 <span>⏭️</span>
-                <span class="text-[10px] text-slate-400 mt-0.5">다음문제</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">다음주제</span>
             </button>
         </nav>
     </main>
 
-    <!-- 모달들 -->
-    <div id="select-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+    <!-- 주제 선택 모달 -->
+    <div id="topic-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[80vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 border-b pb-3 shrink-0">
-                <h3 class="font-bold text-base text-slate-800">📚 학습할 문제 선택</h3>
-                <button onclick="closeSelectModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+                <h3 class="font-bold text-base text-slate-800">📚 학습할 주제(문제) 선택</h3>
+                <button onclick="closeTopicModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
             </div>
-            <div id="problem-list-container" class="flex-1 overflow-y-auto space-y-2 mb-4"></div>
-            <button onclick="closeSelectModal()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs shrink-0">닫기</button>
+            <div id="topic-list-container" class="flex-1 overflow-y-auto space-y-2 mb-4"></div>
+            <button onclick="closeTopicModal()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs shrink-0">닫기</button>
         </div>
     </div>
 
+    <!-- 통계 모달 -->
     <div id="stats-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[80vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 border-b pb-3 shrink-0">
-                <h3 class="font-bold text-base text-slate-800">📊 문제별 학습 통계</h3>
+                <h3 class="font-bold text-base text-slate-800">📊 주제별 학습 통계</h3>
                 <button onclick="closeStatsModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
             </div>
             <div id="stats-list-container" class="flex-1 overflow-y-auto space-y-2 mb-4"></div>
@@ -165,6 +166,7 @@
         </div>
     </div>
 
+    <!-- 설정 모달 -->
     <div id="config-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -178,6 +180,8 @@
                     <select id="g-voice-name" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white">
                         <option value="en-US-Neural2-F">en-US-Neural2-F (여성 고품질)</option>
                         <option value="en-US-Neural2-D">en-US-Neural2-D (남성 고품질)</option>
+                        <option value="en-US-Journey-F">en-US-Journey-F (대화체 여성)</option>
+                        <option value="en-US-Journey-D">en-US-Journey-D (대화체 남성)</option>
                     </select>
                 </div>
             </div>
@@ -195,64 +199,86 @@
         </div>
     </div>
 
+    <!-- 주제 및 문장 추가 모달 (메인-서브 구조 동시 등록) -->
     <div id="add-modal" class="fixed inset-0 bg-black/50 hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-base text-slate-800">새로운 문제 등록</h3>
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b pb-3 shrink-0">
+                <h3 class="font-bold text-base text-slate-800">새 주제 & 문장 세트 등록</h3>
                 <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
             </div>
-            <div class="space-y-3 mb-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">문제 제목</label>
-                    <input type="text" id="new-title" placeholder="주말 루틴 이야기" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+            
+            <div class="flex-1 overflow-y-auto space-y-3 mb-4 pr-1">
+                <!-- 메인 주제 입력 -->
+                <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100 space-y-2">
+                    <div class="text-xs font-bold text-indigo-800">📌 1. 메인 주제 (Topic)</div>
+                    <input type="text" id="new-topic-title" placeholder="주제 제목 (예: 주말 동네 공원 산책 루틴)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                    <input type="text" id="new-topic-desc" placeholder="간단한 설명 (선택 사항)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">영어 원문 (en)</label>
-                    <textarea id="new-en" rows="2" placeholder="Well, to be honest..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">한국어 해석 (ko)</label>
-                    <input type="text" id="new-ko" placeholder="음, 솔직히 말해서..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">핵심 표현 (쉼표 구분)</label>
-                    <input type="text" id="new-expr" placeholder="to be honest, unwind" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs">
+
+                <!-- 서브 문장 입력 리스트 -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-700">📝 2. 세부 문장 목록 (순서대로)</span>
+                        <button type="button" onclick="appendSentenceInputRow()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-[11px] font-bold">
+                            + 문장 칸 추가
+                        </button>
+                    </div>
+                    <div id="sentence-inputs-container" class="space-y-2.5">
+                        <!-- 자바스크립트로 기본 입력칸 생성 -->
+                    </div>
                 </div>
             </div>
-            <button onclick="addNewSentence()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs">저장하기</button>
+
+            <button onclick="saveNewTopicAndSentences()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-xs shrink-0">주제 및 문장 전체 저장</button>
         </div>
     </div>
 
     <script>
         const steps = [
-            { step: 1, title: "Step 1: 순수 귀로 듣기 (화면 숨김)", desc: "운전 중에 화면을 보지 않고 오직 귀로만 들으며 전체 맥락을 파악합니다." },
-            { step: 2, title: "Step 2: 문장 단위 순차 학습", desc: "'다음 단계'를 누르면 다음 문장으로 큼직하게 넘어갑니다." },
-            { step: 3, title: "Step 3: 섀도잉 및 무한 반복", desc: "음성이 자동 반복됩니다. 소리를 따라 입으로 뱉어보세요." }
+            { step: 1, title: "Step 1: 전체 스크립트 귀로 듣기", desc: "화면을 보지 않고 주제 전체 문장을 연속해서 귀로만 듣습니다." },
+            { step: 2, title: "Step 2: 문장 단위 순차 학습", desc: "'다음 단계'를 누르면 주제 내 문장이 1번부터 차례대로 큼직하게 넘어갑니다." },
+            { step: 3, title: "Step 3: 전체 스크립트 무한 섀도잉", desc: "전체 스크립트가 자동 반복됩니다. 원어민 호흡을 따라 말해보세요." }
         ];
 
-        let currentStepIdx = 0;
-        let currentSentenceIdx = 0;
+        let currentStepIdx = 0;       // 0: Step1, 1: Step2, 2: Step3
+        let currentTopicIdx = 0;      // 현재 선택된 메인 주제 인덱스
+        let currentSubSentenceIdx = 0; // Step 2에서 현재 보고 있는 서브 문장 인덱스
         let currentAudioObject = null;
         let selectedSpeed = 1.0;
         let isWritingMode = false;
-        
-        // 기본 안전 데이터 (DB 연결 실패 시에도 절대 멈추지 않음)
-        let sentences = [
+
+        // 메인-서브 계층형 기본 데이터 (DB 연동 전이나 오프라인 시 동작)
+        let topicsData = [
             {
-                id: "default-1",
+                id: "default-topic-1",
                 title: "주말 동네 공원 산책 루틴",
-                en: "Well, to be honest, I usually spend my weekends at a local park near my apartment because it’s a great place to unwind after a busy work week.",
-                ko: "음, 솔직히 말해서, 저는 바쁜 한 주를 보내고 나서 쉬기에 정말 좋은 공간이라 보통 주말에 아파트 근처 동네 공원에서 시간을 보내요.",
-                expressions: ["to be honest", "unwind", "after a busy work week"],
-                patterns: ["I usually spend my weekends at a local park."]
+                description: "오픽 대화형 필수 스크립트 주제",
+                sentences: [
+                    {
+                        id: "s-1",
+                        sentence_order: 1,
+                        en: "Well, to be honest, I usually spend my weekends at a local park near my apartment.",
+                        ko: "음, 솔직히 말해서, 저는 보통 주말을 아파트 근처 동네 공원에서 보냅니다.",
+                        expressions: ["to be honest", "local park"],
+                        patterns: ["I usually spend my weekends at a local park.", "I usually spend my evenings at home."]
+                    },
+                    {
+                        id: "s-2",
+                        sentence_order: 2,
+                        en: "It’s a great place to unwind after a busy work week.",
+                        ko: "바쁜 한 주를 보낸 후에 긴장을 풀기에 아주 좋은 장소거든요.",
+                        expressions: ["unwind", "after a busy work week"],
+                        patterns: ["It's a great place to relax after work."]
+                    }
+                ]
             }
         ];
 
         let supabaseClient = null;
 
-        // 즉시 실행 및 안전한 초기화
         window.addEventListener('DOMContentLoaded', () => {
             try {
+                resetAddModalInputs();
                 loadAllConfigs();
                 renderCurrentView();
             } catch (e) {
@@ -279,9 +305,7 @@
                     if (document.getElementById('sb-key')) document.getElementById('sb-key').value = key;
                     initSupabase(url, key);
                 }
-            } catch (err) {
-                console.error("Config Load Error:", err);
-            }
+            } catch (err) {}
         }
 
         function saveAllConfigs() {
@@ -310,15 +334,12 @@
                 closeConfigModal();
                 alert("설정이 저장되었습니다.");
                 location.reload();
-            } catch (e) {
-                alert("설정 저장 중 오류가 발생했습니다.");
-            }
+            } catch (e) {}
         }
 
-        // 설정 초기화 버튼 기능 추가 (설정 모달이 안 열릴 때를 대비)
         function clearAllConfigs() {
             localStorage.clear();
-            alert("모든 설정이 초기화되었습니다. 페이지가 새로고침됩니다.");
+            alert("모든 설정이 초기화되었습니다.");
             location.reload();
         }
 
@@ -327,19 +348,52 @@
                 supabaseClient = supabase.createClient(url, key);
                 document.getElementById('db-status-badge').className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
                 document.getElementById('db-status-text').innerText = "Supabase 연동";
-                fetchSupabaseData();
-            } catch (e) { 
-                console.error("Supabase Init Error:", e); 
-            }
+                fetchTopicsAndSentences();
+            } catch (e) {}
         }
 
-        async function fetchSupabaseData() {
+        // 메인(topics)과 서브(script_sentences) 테이블 관계형 조회
+        async function fetchTopicsAndSentences() {
             if (!supabaseClient) return;
             try {
-                const { data, error } = await supabaseClient.from('english_sentences').select('*').order('created_at', { ascending: false });
+                const { data, error } = await supabaseClient
+                    .from('topics')
+                    .select(`
+                        id,
+                        title,
+                        description,
+                        created_at,
+                        script_sentences (
+                            id,
+                            sentence_order,
+                            en,
+                            ko,
+                            expressions,
+                            patterns
+                        )
+                    `)
+                    .order('created_at', { ascending: true });
+
                 if (!error && data && data.length > 0) {
-                    sentences = data;
-                    currentSentenceIdx = 0;
+                    // 각 주제 내부의 문장들을 sentence_order 순으로 정렬
+                    topicsData = data.map(topic => {
+                        const sortedSentences = (topic.script_sentences || []).sort((a, b) => a.sentence_order - b.sentence_order);
+                        return {
+                            id: topic.id,
+                            title: topic.title,
+                            description: topic.description,
+                            sentences: sortedSentences.length > 0 ? sortedSentences : [{
+                                id: 'empty',
+                                sentence_order: 1,
+                                en: '등록된 세부 문장이 없습니다.',
+                                ko: '문장을 추가해 주세요.',
+                                expressions: [],
+                                patterns: []
+                            }]
+                        };
+                    });
+                    currentTopicIdx = 0;
+                    currentSubSentenceIdx = 0;
                     renderCurrentView();
                 }
             } catch (err) {
@@ -365,10 +419,9 @@
             document.getElementById('reveal-btn').classList.add('hidden');
         }
 
-        async function speakCurrentContent() {
-            const s = sentences[currentSentenceIdx] || sentences[0];
-            if (!s) return;
-
+        // 텍스트 직접 재생 헬퍼 (핵심표현/변형패턴 클릭 시 사용)
+        async function speakSpecificText(customText, loop = false) {
+            if (!customText) return;
             const apiKey = localStorage.getItem('g_api_key');
             const voiceName = localStorage.getItem('g_voice_name') || 'en-US-Neural2-F';
 
@@ -380,12 +433,10 @@
             const btnIcon = document.getElementById('tts-btn-icon');
             btnIcon.innerText = "⏳";
 
-            let textToSpeak = s.en;
-
             if (apiKey) {
                 const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
                 const requestBody = {
-                    input: { text: textToSpeak },
+                    input: { text: customText },
                     voice: { languageCode: 'en-US', name: voiceName },
                     audioConfig: { audioEncoding: 'MP3', speakingRate: selectedSpeed }
                 };
@@ -400,8 +451,8 @@
                     if (data.audioContent) {
                         const audio = new Audio("data:audio/mp3;base64," + data.audioContent);
                         audio.playbackRate = selectedSpeed;
+                        audio.loop = loop;
                         currentAudioObject = audio;
-                        if (currentStepIdx === 2) audio.loop = true;
                         audio.play();
                         audio.onended = () => { if (!audio.loop) btnIcon.innerText = "🔊"; };
                         btnIcon.innerText = "🔊";
@@ -410,7 +461,7 @@
             } else {
                 if (!('speechSynthesis' in window)) { btnIcon.innerText = "🔊"; return; }
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                const utterance = new SpeechSynthesisUtterance(customText);
                 utterance.lang = 'en-US';
                 utterance.rate = selectedSpeed;
                 utterance.onend = () => { btnIcon.innerText = "🔊"; };
@@ -419,19 +470,44 @@
             }
         }
 
+        // 현재 단계에 맞는 음성 재생 (Step 1, 3: 주제 전체 문장 / Step 2: 현재 보고 있는 1개 문장)
+        function speakCurrentContent() {
+            const topic = topicsData[currentTopicIdx] || topicsData[0];
+            if (!topic || !topic.sentences || topic.sentences.length === 0) return;
+
+            if (currentStepIdx === 1) {
+                // Step 2: 현재 선택된 서브 문장 1개만 재생
+                const sub = topic.sentences[currentSubSentenceIdx] || topic.sentences[0];
+                speakSpecificText(sub.en, false);
+            } else {
+                // Step 1 & Step 3: 주제의 전체 문장 합쳐서 재생 (Step 3는 무한 반복)
+                const fullScript = topic.sentences.map(s => s.en).join(' ');
+                const isLoop = (currentStepIdx === 2);
+                speakSpecificText(fullScript, isLoop);
+            }
+        }
+
         function renderCurrentView() {
-            if (!sentences || sentences.length === 0) return;
+            if (!topicsData || topicsData.length === 0) return;
             if (currentAudioObject) {
                 currentAudioObject.pause();
                 currentAudioObject = null;
                 document.getElementById('tts-btn-icon').innerText = "🔊";
             }
 
-            const s = sentences[currentSentenceIdx] || sentences[0];
+            const topic = topicsData[currentTopicIdx] || topicsData[0];
+            const subSentences = topic.sentences || [];
+            const activeSub = subSentences[currentSubSentenceIdx] || subSentences[0];
             const st = steps[currentStepIdx] || steps[0];
 
-            document.getElementById('current-header-title').innerText = s.title || `문제 ${currentSentenceIdx + 1}`;
-            document.getElementById('sentence-counter').innerText = `문제 ${currentSentenceIdx + 1} / ${sentences.length}`;
+            // 헤더 및 진행 상태 표시
+            document.getElementById('current-topic-title').innerText = topic.title || `주제 ${currentTopicIdx + 1}`;
+            if (currentStepIdx === 1) {
+                document.getElementById('sentence-counter').innerText = `주제 ${currentTopicIdx + 1}/${topicsData.length} · 문장 ${currentSubSentenceIdx + 1}/${subSentences.length}`;
+            } else {
+                document.getElementById('sentence-counter').innerText = `주제 ${currentTopicIdx + 1} / ${topicsData.length} (총 ${subSentences.length}문장)`;
+            }
+
             document.getElementById('step-badge').innerText = `Step ${st.step}`;
             document.getElementById('step-title').innerText = st.title;
             document.getElementById('step-desc').innerText = st.desc;
@@ -440,12 +516,16 @@
             const writingDisplay = document.getElementById('writing-display');
             const koBox = document.getElementById('ko-box');
 
+            // 현재 기준 영어/한글 텍스트 산출
+            const targetEn = (currentStepIdx === 1) ? activeSub.en : subSentences.map(s => s.en).join(' ');
+            const targetKo = (currentStepIdx === 1) ? activeSub.ko : subSentences.map(s => s.ko).join(' ');
+
             if (isWritingMode) {
                 contentDisplay.classList.add('hidden');
                 writingDisplay.classList.remove('hidden');
                 koBox.classList.add('hidden');
-                document.getElementById('writing-ko-prompt').innerText = s.ko || "";
-                document.getElementById('writing-answer-box').innerText = s.en || "";
+                document.getElementById('writing-ko-prompt').innerText = targetKo || "";
+                document.getElementById('writing-answer-box').innerText = targetEn || "";
                 document.getElementById('writing-answer-box').classList.add('hidden');
                 document.getElementById('reveal-btn').classList.remove('hidden');
             } else {
@@ -454,107 +534,171 @@
                 koBox.classList.remove('hidden');
 
                 if (currentStepIdx === 0) {
-                    contentDisplay.innerHTML = `<span class="text-slate-400 text-sm font-normal">🎧 화면을 보지 말고 귀로만 집중해서 들어보세요</span>`;
+                    contentDisplay.innerHTML = `<span class="text-slate-400 text-base font-normal">🎧 화면을 보지 말고 전체 스크립트를 귀로만 들어보세요</span>`;
+                } else if (currentStepIdx === 1) {
+                    // Step 2: 한 문장씩 대형 폰트로 표시
+                    contentDisplay.innerHTML = `
+                        <div class="text-indigo-600 text-xs font-bold mb-1.5">문장 ${currentSubSentenceIdx + 1} / ${subSentences.length}</div>
+                        <div>${activeSub.en}</div>
+                    `;
                 } else {
-                    contentDisplay.innerText = s.en || "";
+                    // Step 3: 전체 스크립트 섀도잉 뷰
+                    contentDisplay.innerText = targetEn;
                 }
             }
 
-            document.getElementById('ko-display').innerText = s.ko || "";
+            document.getElementById('ko-display').innerText = targetKo || "";
 
-            // 핵심 표현 렌더링
+            // 핵심 표현 렌더링 (터치 시 원어민 발음 재생)
             const exprContainer = document.getElementById('expressions-container');
             const exprChips = document.getElementById('expression-chips');
             exprChips.innerHTML = '';
-            if (s.expressions && Array.isArray(s.expressions) && s.expressions.length > 0) {
+            const currentExprs = (currentStepIdx === 1) 
+                ? (activeSub.expressions || []) 
+                : subSentences.flatMap(s => s.expressions || []);
+
+            if (currentExprs.length > 0) {
                 exprContainer.classList.remove('hidden');
-                s.expressions.forEach(ex => {
-                    const chip = document.createElement('span');
-                    chip.className = "bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-indigo-100";
-                    chip.innerText = ex;
+                currentExprs.forEach(ex => {
+                    const chip = document.createElement('button');
+                    chip.className = "bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-indigo-200 transition flex items-center gap-1";
+                    chip.innerHTML = `<span>🔊</span><span>${ex}</span>`;
+                    chip.onclick = () => speakSpecificText(ex, false);
                     exprChips.appendChild(chip);
                 });
             } else { exprContainer.classList.add('hidden'); }
 
-            // 변형 패턴 렌더링
+            // 변형 패턴 렌더링 (터치 시 원어민 발음 재생)
             const patternsContainer = document.getElementById('patterns-container');
             const patternList = document.getElementById('pattern-list');
             patternList.innerHTML = '';
-            if (s.patterns && Array.isArray(s.patterns) && s.patterns.length > 0) {
+            const currentPatterns = (currentStepIdx === 1) 
+                ? (activeSub.patterns || []) 
+                : subSentences.flatMap(s => s.patterns || []);
+
+            if (currentPatterns.length > 0) {
                 patternsContainer.classList.remove('hidden');
-                s.patterns.forEach(p => {
-                    const div = document.createElement('div');
-                    div.className = "text-[11px] text-slate-700 font-medium bg-white p-1.5 rounded-lg border border-slate-200";
-                    div.innerText = "• " + p;
-                    patternList.appendChild(div);
+                currentPatterns.forEach(p => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left text-[11px] text-slate-700 hover:text-indigo-700 font-medium bg-white hover:bg-indigo-50/50 p-2 rounded-lg border border-slate-200 transition flex items-center justify-between";
+                    btn.innerHTML = `<span>• ${p}</span><span class="text-[10px] text-indigo-500 ml-2 shrink-0">🔊 듣기</span>`;
+                    btn.onclick = () => speakSpecificText(p, false);
+                    patternList.appendChild(btn);
                 });
             } else { patternsContainer.classList.add('hidden'); }
 
-            document.getElementById('next-btn-text').innerText = currentStepIdx < 2 ? `Step ${st.step + 1}로 ➔` : "완료 (다음 문제)";
+            // 하단 메인 버튼 텍스트 안내
+            if (currentStepIdx === 1 && currentSubSentenceIdx < subSentences.length - 1) {
+                document.getElementById('next-btn-text').innerText = `다음 문장 (${currentSubSentenceIdx + 2}/${subSentences.length}) ➔`;
+            } else if (currentStepIdx < 2) {
+                document.getElementById('next-btn-text').innerText = `Step ${st.step + 1}로 ➔`;
+            } else {
+                document.getElementById('next-btn-text').innerText = "학습 완료 (다음 주제)";
+            }
         }
 
+        // 단계 및 문장 순차 이동 로직
         function changeStep(direction) {
+            const topic = topicsData[currentTopicIdx] || topicsData[0];
+            const subSentences = topic.sentences || [];
+
+            if (currentStepIdx === 1) {
+                if (direction > 0 && currentSubSentenceIdx < subSentences.length - 1) {
+                    // Step 2에서 다음 문장이 남아있다면 다음 서브 문장으로 이동 + 자동 재생
+                    currentSubSentenceIdx++;
+                    renderCurrentView();
+                    speakCurrentContent();
+                    return;
+                } else if (direction < 0 && currentSubSentenceIdx > 0) {
+                    // Step 2에서 이전 문장으로 이동
+                    currentSubSentenceIdx--;
+                    renderCurrentView();
+                    speakCurrentContent();
+                    return;
+                }
+            }
+
             currentStepIdx += direction;
+
             if (currentStepIdx > 2) {
+                // Step 3 완료 -> 통계 기록 후 다음 주제로 이동
+                recordTopicCompletion(topic.id);
                 currentStepIdx = 0;
-                recordCompletion(sentences[currentSentenceIdx]?.id || currentSentenceIdx);
-                nextSentence();
+                currentSubSentenceIdx = 0;
+                nextTopic();
                 return;
             }
+
             if (currentStepIdx < 0) {
                 currentStepIdx = 2;
             }
+
+            if (currentStepIdx === 1) {
+                currentSubSentenceIdx = direction > 0 ? 0 : Math.max(0, subSentences.length - 1);
+            }
+
             renderCurrentView();
         }
 
-        function nextSentence() {
-            currentSentenceIdx = (currentSentenceIdx + 1) % sentences.length;
+        function nextTopic() {
+            currentTopicIdx = (currentTopicIdx + 1) % topicsData.length;
             currentStepIdx = 0;
+            currentSubSentenceIdx = 0;
             renderCurrentView();
         }
 
-        function recordCompletion(id) {
+        function recordTopicCompletion(topicId) {
             try {
-                let stats = JSON.parse(localStorage.getItem('problem_stats') || '{}');
-                stats[id] = (stats[id] || 0) + 1;
-                localStorage.setItem('problem_stats', JSON.stringify(stats));
+                let stats = JSON.parse(localStorage.getItem('topic_stats') || '{}');
+                stats[topicId] = (stats[topicId] || 0) + 1;
+                localStorage.setItem('topic_stats', JSON.stringify(stats));
             } catch (e) {}
         }
 
-        function openSelectModal() {
-            const container = document.getElementById('problem-list-container');
+        // 주제 선택 모달
+        function openTopicModal() {
+            const container = document.getElementById('topic-list-container');
             container.innerHTML = '';
-            sentences.forEach((s, idx) => {
+            topicsData.forEach((t, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `w-full text-left p-3 rounded-xl border text-xs font-semibold flex justify-between items-center transition ${idx === currentSentenceIdx ? 'bg-indigo-50 border-indigo-300 text-indigo-900' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`;
-                btn.innerHTML = `<span>문제 ${idx + 1}. ${s.title || (s.en ? s.en.substring(0, 30) + '...' : '')}</span> <span class="text-[10px] text-slate-400">선택 ➔</span>`;
+                const count = t.sentences ? t.sentences.length : 0;
+                btn.className = `w-full text-left p-3.5 rounded-xl border text-xs font-semibold flex justify-between items-center transition ${idx === currentTopicIdx ? 'bg-indigo-50 border-indigo-300 text-indigo-900' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`;
+                btn.innerHTML = `
+                    <div>
+                        <div class="font-bold text-sm">${idx + 1}. ${t.title}</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">총 ${count}개 문장 구성</div>
+                    </div>
+                    <span class="text-xs text-indigo-600 font-bold shrink-0">학습 ➔</span>
+                `;
                 btn.onclick = () => {
-                    currentSentenceIdx = idx;
+                    currentTopicIdx = idx;
                     currentStepIdx = 0;
+                    currentSubSentenceIdx = 0;
                     renderCurrentView();
-                    closeSelectModal();
+                    closeTopicModal();
                 };
                 container.appendChild(btn);
             });
-            document.getElementById('select-modal').classList.remove('hidden');
-            document.getElementById('select-modal').classList.add('flex');
+            document.getElementById('topic-modal').classList.remove('hidden');
+            document.getElementById('topic-modal').classList.add('flex');
         }
-        function closeSelectModal() { document.getElementById('select-modal').classList.remove('flex'); document.getElementById('select-modal').classList.add('hidden'); }
+        function closeTopicModal() { document.getElementById('topic-modal').classList.remove('flex'); document.getElementById('topic-modal').classList.add('hidden'); }
 
+        // 통계 모달 (주제 기준)
         function openStatsModal() {
-            const stats = JSON.parse(localStorage.getItem('problem_stats') || '{}');
+            const stats = JSON.parse(localStorage.getItem('topic_stats') || '{}');
             const container = document.getElementById('stats-list-container');
             container.innerHTML = '';
-            sentences.forEach((s, idx) => {
-                const count = stats[s.id || idx] || 0;
+            topicsData.forEach((t, idx) => {
+                const count = stats[t.id] || 0;
                 const div = document.createElement('div');
-                div.className = "bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-center";
+                div.className = "bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center";
                 div.innerHTML = `
                     <div>
-                        <div class="text-xs font-bold text-slate-800">문제 ${idx + 1}. ${s.title || '제목 없음'}</div>
-                        <div class="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">${s.en || ''}</div>
+                        <div class="text-xs font-bold text-slate-800">${idx + 1}. ${t.title}</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">${t.description || `총 ${t.sentences.length}문장`}</div>
                     </div>
-                    <div class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-xs font-bold shrink-0">${count}회 완료</div>
+                    <div class="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold shrink-0">${count}회 완료</div>
                 `;
                 container.appendChild(div);
             });
@@ -566,51 +710,128 @@
         function openConfigModal() { document.getElementById('config-modal').classList.remove('hidden'); document.getElementById('config-modal').classList.add('flex'); }
         function closeConfigModal() { document.getElementById('config-modal').classList.remove('flex'); document.getElementById('config-modal').classList.add('hidden'); }
         
-        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('add-modal').classList.add('flex'); }
+        function openAddModal() { 
+            resetAddModalInputs();
+            document.getElementById('add-modal').classList.remove('hidden'); 
+            document.getElementById('add-modal').classList.add('flex'); 
+        }
         function closeAddModal() { document.getElementById('add-modal').classList.remove('flex'); document.getElementById('add-modal').classList.add('hidden'); }
 
-        async function addNewSentence() {
-            const title = document.getElementById('new-title').value.trim();
-            const en = document.getElementById('new-en').value.trim();
-            const ko = document.getElementById('new-ko').value.trim();
-            const exprInput = document.getElementById('new-expr').value.trim();
-            const expressions = exprInput ? exprInput.split(',').map(e => e.trim()) : [];
+        // 새 주제 및 다중 문장 입력 UI 관리
+        function resetAddModalInputs() {
+            document.getElementById('new-topic-title').value = '';
+            document.getElementById('new-topic-desc').value = '';
+            const container = document.getElementById('sentence-inputs-container');
+            container.innerHTML = '';
+            appendSentenceInputRow();
+            appendSentenceInputRow();
+        }
 
-            if (!en || !ko) {
-                alert("영어 원문과 한국어 해석은 필수입니다.");
+        function appendSentenceInputRow() {
+            const container = document.getElementById('sentence-inputs-container');
+            const idx = container.children.length + 1;
+            const div = document.createElement('div');
+            div.className = "sentence-input-group bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 relative";
+            div.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="text-[11px] font-bold text-slate-600">문장 #${idx}</span>
+                    ${idx > 1 ? `<button type="button" onclick="this.parentElement.parentElement.remove()" class="text-[10px] text-rose-500 font-semibold">삭제</button>` : ''}
+                </div>
+                <input type="text" class="sub-en w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs" placeholder="영어 한 문장 (필수)">
+                <input type="text" class="sub-ko w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs" placeholder="한국어 해석 (필수)">
+                <input type="text" class="sub-expr w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs" placeholder="핵심 표현 (쉼표로 구분, 선택)">
+                <input type="text" class="sub-pat w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs" placeholder="변형 패턴 문장 (/ 로 구분, 선택)">
+            `;
+            container.appendChild(div);
+        }
+
+        async function saveNewTopicAndSentences() {
+            const title = document.getElementById('new-topic-title').value.trim();
+            const description = document.getElementById('new-topic-desc').value.trim();
+            if (!title) {
+                alert("메인 주제 제목을 입력해 주세요.");
                 return;
             }
 
-            const newObj = {
-                id: 'prob-' + Date.now(),
-                title: title || '새로운 문제',
-                en,
-                ko,
-                expressions,
-                patterns: []
-            };
+            const groups = document.querySelectorAll('.sentence-input-group');
+            const parsedSentences = [];
+
+            groups.forEach((group, i) => {
+                const en = group.querySelector('.sub-en').value.trim();
+                const ko = group.querySelector('.sub-ko').value.trim();
+                const exprRaw = group.querySelector('.sub-expr').value.trim();
+                const patRaw = group.querySelector('.sub-pat').value.trim();
+
+                if (en && ko) {
+                    parsedSentences.push({
+                        sentence_order: i + 1,
+                        en,
+                        ko,
+                        expressions: exprRaw ? exprRaw.split(',').map(s => s.trim()).filter(Boolean) : [],
+                        patterns: patRaw ? patRaw.split('/').map(s => s.trim()).filter(Boolean) : []
+                    });
+                }
+            });
+
+            if (parsedSentences.length === 0) {
+                alert("최소 1개 이상의 영어 문장과 한국어 해석을 입력해 주세요.");
+                return;
+            }
 
             if (supabaseClient) {
                 try {
-                    const { data, error } = await supabaseClient.from('english_sentences').insert([newObj]).select();
-                    if (!error && data) sentences.unshift(data[0]);
-                    else sentences.unshift(newObj);
-                } catch (e) {
-                    sentences.unshift(newObj);
+                    // 1. 메인 topics 테이블에 저장
+                    const { data: topicRes, error: topicErr } = await supabaseClient
+                        .from('topics')
+                        .insert([{ title, description }])
+                        .select()
+                        .single();
+
+                    if (topicErr) throw topicErr;
+
+                    // 2. 서브 script_sentences 테이블에 topic_id 연결하여 일괄 저장
+                    const rowsToInsert = parsedSentences.map(s => ({
+                        topic_id: topicRes.id,
+                        sentence_order: s.sentence_order,
+                        en: s.en,
+                        ko: s.ko,
+                        expressions: s.expressions,
+                        patterns: s.patterns
+                    }));
+
+                    const { error: subErr } = await supabaseClient
+                        .from('script_sentences')
+                        .insert(rowsToInsert);
+
+                    if (subErr) throw subErr;
+
+                    await fetchTopicsAndSentences();
+                    currentTopicIdx = topicsData.length - 1;
+                } catch (err) {
+                    console.error("Save Error:", err);
+                    alert("DB 저장 중 오류가 발생했습니다. 로컬에만 임시 반영됩니다.");
+                    topicsData.push({
+                        id: 'local-' + Date.now(),
+                        title,
+                        description,
+                        sentences: parsedSentences
+                    });
+                    currentTopicIdx = topicsData.length - 1;
                 }
             } else {
-                sentences.unshift(newObj);
+                topicsData.push({
+                    id: 'local-' + Date.now(),
+                    title,
+                    description,
+                    sentences: parsedSentences
+                });
+                currentTopicIdx = topicsData.length - 1;
             }
 
-            currentSentenceIdx = 0;
             currentStepIdx = 0;
+            currentSubSentenceIdx = 0;
             renderCurrentView();
             closeAddModal();
-
-            document.getElementById('new-title').value = '';
-            document.getElementById('new-en').value = '';
-            document.getElementById('new-ko').value = '';
-            document.getElementById('new-expr').value = '';
         }
     </script>
 </body>
